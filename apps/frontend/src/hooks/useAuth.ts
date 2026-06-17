@@ -1,4 +1,4 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import type { AuthUser } from '@/context/AuthContext';
 
 interface AuthResponse {
@@ -11,10 +11,29 @@ interface LoginInput {
   password: string;
 }
 
-interface RegisterInput {
+interface StudentRegisterInput {
+  role: 'STUDENT';
   name: string;
   email: string;
   password: string;
+}
+
+interface MentorRegisterInput {
+  role: 'MENTOR';
+  name: string;
+  email: string;
+  password: string;
+  title: string;
+  bio: string;
+  stackId: string;
+}
+
+export type RegisterInput = StudentRegisterInput | MentorRegisterInput;
+
+export interface StackOption {
+  id: string;
+  name: string;
+  description: string | null;
 }
 
 async function loginRequest(body: LoginInput): Promise<AuthResponse> {
@@ -39,6 +58,12 @@ async function registerRequest(body: RegisterInput): Promise<AuthResponse> {
   return data as AuthResponse;
 }
 
+async function fetchStacks(): Promise<StackOption[]> {
+  const res = await fetch('/api/stacks');
+  if (!res.ok) throw new Error('Failed to load stacks');
+  return res.json() as Promise<StackOption[]>;
+}
+
 export function useLogin() {
   return useMutation<AuthResponse, Error, LoginInput>({
     mutationFn: loginRequest,
@@ -48,5 +73,13 @@ export function useLogin() {
 export function useRegister() {
   return useMutation<AuthResponse, Error, RegisterInput>({
     mutationFn: registerRequest,
+  });
+}
+
+export function useStacks() {
+  return useQuery<StackOption[], Error>({
+    queryKey: ['stacks'],
+    queryFn: fetchStacks,
+    staleTime: 1000 * 60 * 10,
   });
 }
