@@ -19,19 +19,46 @@ enum Role {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  name      String
-  email     String   @unique
-  password  String
-  role      Role     @default(STUDENT)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            String         @id @default(cuid())
+  email         String         @unique
+  password      String
+  role          Role           @default(STUDENT)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  mentorProfile MentorProfile?
+  studentProfile StudentProfile?
 }
 
 model Stack {
-  id          String   @id @default(cuid())
-  name        String   @unique
+  id          String          @id @default(cuid())
+  name        String          @unique
   description String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  mentors     MentorProfile[]
+}
+
+model MentorProfile {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stackId       String
+  stack         Stack    @relation(fields: [stackId], references: [id])
+  name          String
+  title         String
+  bio           String
+  isVerified    Boolean  @default(false)
+  averageRating Float    @default(0)
+  hourlyRate    Decimal  @default(0) @db.Decimal(10, 2)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model StudentProfile {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

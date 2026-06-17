@@ -7,7 +7,9 @@ const router = Router();
 
 const adminOnly = [authenticate, authorize('ADMIN')];
 
-router.get('/', ...adminOnly, listStacks);
+// Public: anyone can list stacks (needed for mentor signup)
+router.get('/', listStacks);
+// Admin-only mutations
 router.post('/', ...adminOnly, createStack);
 router.put('/:id', ...adminOnly, updateStack);
 router.delete('/:id', ...adminOnly, deleteStack);
