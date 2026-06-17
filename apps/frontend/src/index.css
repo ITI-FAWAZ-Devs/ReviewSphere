@@ -56,7 +56,4 @@
   body {
     @apply bg-background text-foreground;
   }
-  html, body, #root {
-    min-height: 100%;
-  }
 }
