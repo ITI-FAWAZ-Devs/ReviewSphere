@@ -88,186 +88,189 @@ export default function AuthPage() {
   const inputClass = "bg-transparent border-0 border-b border-slate-600 rounded-none px-0 text-slate-100 placeholder-slate-500 focus-visible:ring-0 focus-visible:border-indigo-500 transition-colors text-sm";
 
   return (
-    <div className="min-h-screen bg-[#0d1117] flex items-center justify-center px-4">
+    <div className="min-h-screen bg-[#0d1117] flex flex-col py-6 px-4">
       {/* App name */}
-      <div className="absolute top-6 left-8">
+      <div className="shrink-0 mb-4 pl-2">
         <span className="text-white font-bold text-xl tracking-tight">ReviewSphere</span>
       </div>
 
-      <div className="w-full max-w-sm">
-        <div className="bg-[#161b22] border border-slate-700/50 rounded-2xl shadow-2xl overflow-hidden">
+      {/* Scrollable centering wrapper */}
+      <div className="flex-1 flex items-start justify-center">
+        <div className="w-full max-w-sm">
+          <div className="bg-[#161b22] border border-slate-700/50 rounded-2xl shadow-2xl overflow-hidden">
 
-          {/* Tabs */}
-          <div className="flex border-b border-slate-700/50">
-            {(['login', 'register'] as Tab[]).map((t) => (
-              <button
-                key={t}
-                type="button"
-                onClick={() => switchTab(t)}
-                className={cn(
-                  'flex-1 py-3.5 text-xs font-semibold tracking-widest uppercase transition-colors',
-                  tab === t
-                    ? 'text-white border-b-2 border-indigo-500'
-                    : 'text-slate-500 hover:text-slate-300',
-                )}
-              >
-                {t}
-              </button>
-            ))}
-          </div>
-
-          <div className="p-7">
-            {/* Role selector — register only */}
-            {tab === 'register' && (
-              <>
-                <p className="text-slate-400 text-xs text-center mb-4">Select your path</p>
-                <div className="grid grid-cols-2 gap-3 mb-6">
-                  {(['STUDENT', 'MENTOR'] as RoleChoice[]).map((r) => (
-                    <button
-                      key={r}
-                      type="button"
-                      onClick={() => setRole(r)}
-                      className={cn(
-                        'flex flex-col items-center gap-2 py-4 rounded-xl border transition-all text-sm font-medium',
-                        role === r
-                          ? 'bg-indigo-600 border-indigo-500 text-white shadow-lg shadow-indigo-900/40'
-                          : 'bg-slate-800/60 border-slate-700 text-slate-400 hover:border-slate-500 hover:text-slate-300',
-                      )}
-                    >
-                      {r === 'STUDENT'
-                        ? <GraduationCap className="w-5 h-5" />
-                        : <Lightbulb className="w-5 h-5" />}
-                      {r === 'STUDENT' ? 'Student' : 'Mentor'}
-                    </button>
-                  ))}
-                </div>
-              </>
-            )}
-
-            {/* Error */}
-            {error && (
-              <div className="text-red-400 text-xs text-center bg-red-950/40 border border-red-900/60 rounded-lg px-3 py-2 mb-4">
-                {error}
-              </div>
-            )}
-
-            {/* LOGIN FORM */}
-            {tab === 'login' && (
-              <form onSubmit={handleLogin} className="space-y-5">
-                <div className="space-y-1">
-                  <Label className="text-slate-500 text-[10px] tracking-widest uppercase">Work Email</Label>
-                  <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="name@company.com" className={inputClass} />
-                </div>
-
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-slate-500 text-[10px] tracking-widest uppercase">Password</Label>
-                    <button type="button" className="text-slate-500 hover:text-indigo-400 text-[10px] tracking-widest uppercase transition-colors">Forgot?</button>
-                  </div>
-                  <div className="relative">
-                    <Input type={showPassword ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="••••••••" className={cn(inputClass, 'pr-7')} />
-                    <button type="button" onClick={() => setShowPassword((v) => !v)} className="absolute right-0 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors">
-                      {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                    </button>
-                  </div>
-                </div>
-
-                <Button type="submit" disabled={isPending} className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 rounded-xl transition-colors mt-1">
-                  {isPending ? 'Signing in…' : 'Continue'}
-                </Button>
-              </form>
-            )}
-
-            {/* REGISTER FORM */}
-            {tab === 'register' && (
-              <form onSubmit={handleRegister} className="space-y-4">
-                <div className="space-y-1">
-                  <Label className="text-slate-500 text-[10px] tracking-widest uppercase">Full Name</Label>
-                  <Input type="text" value={name} onChange={(e) => setName(e.target.value)} required placeholder="Jane Doe" className={inputClass} />
-                </div>
-
-                <div className="space-y-1">
-                  <Label className="text-slate-500 text-[10px] tracking-widest uppercase">Work Email</Label>
-                  <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="name@company.com" className={inputClass} />
-                </div>
-
-                <div className="space-y-1">
-                  <Label className="text-slate-500 text-[10px] tracking-widest uppercase">Password</Label>
-                  <div className="relative">
-                    <Input type={showPassword ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="••••••••" className={cn(inputClass, 'pr-7')} />
-                    <button type="button" onClick={() => setShowPassword((v) => !v)} className="absolute right-0 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors">
-                      {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                    </button>
-                  </div>
-                </div>
-
-                {/* Mentor-only fields */}
-                {role === 'MENTOR' && (
-                  <>
-                    <div className="space-y-1">
-                      <Label className="text-slate-500 text-[10px] tracking-widest uppercase">Professional Title</Label>
-                      <Input type="text" value={title} onChange={(e) => setTitle(e.target.value)} required placeholder="e.g. Senior React Engineer" className={inputClass} />
-                    </div>
-
-                    <div className="space-y-1">
-                      <Label className="text-slate-500 text-[10px] tracking-widest uppercase">Bio</Label>
-                      <textarea
-                        value={bio}
-                        onChange={(e) => setBio(e.target.value)}
-                        required
-                        minLength={10}
-                        placeholder="Tell students about your expertise…"
-                        rows={3}
-                        className="w-full bg-transparent border-0 border-b border-slate-600 rounded-none px-0 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors text-sm resize-none"
-                      />
-                    </div>
-
-                    <div className="space-y-1">
-                      <Label className="text-slate-500 text-[10px] tracking-widest uppercase">Tech Stack</Label>
-                      <select
-                        value={stackId}
-                        onChange={(e) => setStackId(e.target.value)}
-                        required
-                        className="w-full bg-transparent border-0 border-b border-slate-600 rounded-none px-0 py-1 text-slate-100 focus:outline-none focus:border-indigo-500 transition-colors text-sm appearance-none"
-                      >
-                        <option value="" disabled className="bg-slate-900">Select a stack…</option>
-                        {stacks.map((s) => (
-                          <option key={s.id} value={s.id} className="bg-slate-900">{s.name}</option>
-                        ))}
-                      </select>
-                      {stacks.length === 0 && (
-                        <p className="text-slate-600 text-xs mt-1">No stacks available yet — ask an admin to add some.</p>
-                      )}
-                    </div>
-                  </>
-                )}
-
-                <Button type="submit" disabled={isPending} className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 rounded-xl transition-colors mt-1">
-                  {isPending ? 'Creating account…' : 'Continue'}
-                </Button>
-              </form>
-            )}
-
-            {/* SSO divider */}
-            <div className="mt-5">
-              <p className="text-center text-slate-600 text-xs mb-3">or access via SSO</p>
-              <div className="flex items-center justify-center gap-3">
-                <button type="button" className="w-9 h-9 flex items-center justify-center rounded-full border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-400 transition-colors">
-                  <GoogleIcon />
+            {/* Tabs */}
+            <div className="flex border-b border-slate-700/50 sticky top-0 z-10 bg-[#161b22]">
+              {(['login', 'register'] as Tab[]).map((t) => (
+                <button
+                  key={t}
+                  type="button"
+                  onClick={() => switchTab(t)}
+                  className={cn(
+                    'flex-1 py-3.5 text-xs font-semibold tracking-widest uppercase transition-colors',
+                    tab === t
+                      ? 'text-white border-b-2 border-indigo-500'
+                      : 'text-slate-500 hover:text-slate-300',
+                  )}
+                >
+                  {t}
                 </button>
-                <button type="button" className="w-9 h-9 flex items-center justify-center rounded-full border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-400 transition-colors">
-                  <GitHubIcon />
-                </button>
-              </div>
+              ))}
             </div>
 
-            {/* Terms */}
-            <p className="text-center text-slate-600 text-[11px] mt-5 leading-relaxed">
-              By continuing, you agree to ReviewSphere's{' '}
-              <a href="#" className="underline hover:text-slate-400 transition-colors">Terms of Service</a>
-              {' '}and{' '}
-              <a href="#" className="underline hover:text-slate-400 transition-colors">Privacy Policy</a>.
-            </p>
+            <div className="p-6">
+              {/* Role selector — register only */}
+              {tab === 'register' && (
+                <>
+                  <p className="text-slate-400 text-xs text-center mb-3">Select your path</p>
+                  <div className="grid grid-cols-2 gap-3 mb-5">
+                    {(['STUDENT', 'MENTOR'] as RoleChoice[]).map((r) => (
+                      <button
+                        key={r}
+                        type="button"
+                        onClick={() => setRole(r)}
+                        className={cn(
+                          'flex flex-col items-center gap-1.5 py-3 rounded-xl border transition-all text-sm font-medium',
+                          role === r
+                            ? 'bg-indigo-600 border-indigo-500 text-white shadow-lg shadow-indigo-900/40'
+                            : 'bg-slate-800/60 border-slate-700 text-slate-400 hover:border-slate-500 hover:text-slate-300',
+                        )}
+                      >
+                        {r === 'STUDENT'
+                          ? <GraduationCap className="w-4 h-4" />
+                          : <Lightbulb className="w-4 h-4" />}
+                        {r === 'STUDENT' ? 'Student' : 'Mentor'}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+
+              {/* Error */}
+              {error && (
+                <div className="text-red-400 text-xs text-center bg-red-950/40 border border-red-900/60 rounded-lg px-3 py-2 mb-4">
+                  {error}
+                </div>
+              )}
+
+              {/* LOGIN FORM */}
+              {tab === 'login' && (
+                <form onSubmit={handleLogin} className="space-y-5">
+                  <div className="space-y-1">
+                    <Label className="text-slate-500 text-[10px] tracking-widest uppercase">Work Email</Label>
+                    <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="name@company.com" className={inputClass} />
+                  </div>
+
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-slate-500 text-[10px] tracking-widest uppercase">Password</Label>
+                      <button type="button" className="text-slate-500 hover:text-indigo-400 text-[10px] tracking-widest uppercase transition-colors">Forgot?</button>
+                    </div>
+                    <div className="relative">
+                      <Input type={showPassword ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="••••••••" className={cn(inputClass, 'pr-7')} />
+                      <button type="button" onClick={() => setShowPassword((v) => !v)} className="absolute right-0 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors">
+                        {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <Button type="submit" disabled={isPending} className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 rounded-xl transition-colors mt-1">
+                    {isPending ? 'Signing in…' : 'Continue'}
+                  </Button>
+                </form>
+              )}
+
+              {/* REGISTER FORM */}
+              {tab === 'register' && (
+                <form onSubmit={handleRegister} className="space-y-3">
+                  <div className="space-y-1">
+                    <Label className="text-slate-500 text-[10px] tracking-widest uppercase">Full Name</Label>
+                    <Input type="text" value={name} onChange={(e) => setName(e.target.value)} required placeholder="Jane Doe" className={inputClass} />
+                  </div>
+
+                  <div className="space-y-1">
+                    <Label className="text-slate-500 text-[10px] tracking-widest uppercase">Work Email</Label>
+                    <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="name@company.com" className={inputClass} />
+                  </div>
+
+                  <div className="space-y-1">
+                    <Label className="text-slate-500 text-[10px] tracking-widest uppercase">Password</Label>
+                    <div className="relative">
+                      <Input type={showPassword ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="••••••••" className={cn(inputClass, 'pr-7')} />
+                      <button type="button" onClick={() => setShowPassword((v) => !v)} className="absolute right-0 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors">
+                        {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Mentor-only fields */}
+                  {role === 'MENTOR' && (
+                    <>
+                      <div className="space-y-1">
+                        <Label className="text-slate-500 text-[10px] tracking-widest uppercase">Professional Title</Label>
+                        <Input type="text" value={title} onChange={(e) => setTitle(e.target.value)} required placeholder="e.g. Senior React Engineer" className={inputClass} />
+                      </div>
+
+                      <div className="space-y-1">
+                        <Label className="text-slate-500 text-[10px] tracking-widest uppercase">Bio</Label>
+                        <textarea
+                          value={bio}
+                          onChange={(e) => setBio(e.target.value)}
+                          required
+                          minLength={10}
+                          placeholder="Tell students about your expertise…"
+                          rows={2}
+                          className="w-full bg-transparent border-0 border-b border-slate-600 rounded-none px-0 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors text-sm resize-none"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <Label className="text-slate-500 text-[10px] tracking-widest uppercase">Tech Stack</Label>
+                        <select
+                          value={stackId}
+                          onChange={(e) => setStackId(e.target.value)}
+                          required
+                          className="w-full bg-transparent border-0 border-b border-slate-600 rounded-none px-0 py-1 text-slate-100 focus:outline-none focus:border-indigo-500 transition-colors text-sm appearance-none"
+                        >
+                          <option value="" disabled className="bg-slate-900">Select a stack…</option>
+                          {stacks.map((s) => (
+                            <option key={s.id} value={s.id} className="bg-slate-900">{s.name}</option>
+                          ))}
+                        </select>
+                        {stacks.length === 0 && (
+                          <p className="text-slate-600 text-xs mt-0.5">No stacks yet — ask an admin to add some.</p>
+                        )}
+                      </div>
+                    </>
+                  )}
+
+                  <Button type="submit" disabled={isPending} className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 rounded-xl transition-colors !mt-4">
+                    {isPending ? 'Creating account…' : 'Continue'}
+                  </Button>
+                </form>
+              )}
+
+              {/* SSO divider */}
+              <div className="mt-4">
+                <p className="text-center text-slate-600 text-xs mb-2.5">or access via SSO</p>
+                <div className="flex items-center justify-center gap-3">
+                  <button type="button" className="w-9 h-9 flex items-center justify-center rounded-full border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-400 transition-colors">
+                    <GoogleIcon />
+                  </button>
+                  <button type="button" className="w-9 h-9 flex items-center justify-center rounded-full border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-400 transition-colors">
+                    <GitHubIcon />
+                  </button>
+                </div>
+              </div>
+
+              {/* Terms */}
+              <p className="text-center text-slate-600 text-[11px] mt-4 leading-relaxed">
+                By continuing, you agree to ReviewSphere's{' '}
+                <a href="#" className="underline hover:text-slate-400 transition-colors">Terms of Service</a>
+                {' '}and{' '}
+                <a href="#" className="underline hover:text-slate-400 transition-colors">Privacy Policy</a>.
+              </p>
+            </div>
           </div>
         </div>
       </div>
