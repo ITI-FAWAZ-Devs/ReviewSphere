@@ -63,7 +63,7 @@ export default function AuthPage() {
   function handleLogin(e: FormEvent) {
     e.preventDefault();
     loginMutation.mutate({ email, password }, {
-      onSuccess: (data) => { login(data.user, data.token); navigate('/dashboard'); },
+      onSuccess: (data) => { login(data.user, data.token); navigate('/mentors'); },
     });
   }
 
@@ -75,7 +75,7 @@ export default function AuthPage() {
       : { ...base, role: 'STUDENT' as const };
 
     registerMutation.mutate(payload, {
-      onSuccess: (data) => { login(data.user, data.token); navigate('/dashboard'); },
+      onSuccess: (data) => { login(data.user, data.token); navigate('/mentors'); },
     });
   }
 
@@ -168,7 +168,7 @@ export default function AuthPage() {
                       <button type="button" className="text-slate-500 hover:text-indigo-400 text-[10px] tracking-widest uppercase transition-colors">Forgot?</button>
                     </div>
                     <div className="relative">
-                      <Input type={showPassword ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="••••••••" className={cn(inputClass, 'pr-7')} />
+                      <Input type={showPassword ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} placeholder="••••••••" className={cn(inputClass, 'pr-7')} />
                       <button type="button" onClick={() => setShowPassword((v) => !v)} className="absolute right-0 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors">
                         {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                       </button>
@@ -197,7 +197,7 @@ export default function AuthPage() {
                   <div className="space-y-1">
                     <Label className="text-slate-500 text-[10px] tracking-widest uppercase">Password</Label>
                     <div className="relative">
-                      <Input type={showPassword ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="••••••••" className={cn(inputClass, 'pr-7')} />
+                      <Input type={showPassword ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} placeholder="••••••••" className={cn(inputClass, 'pr-7')} />
                       <button type="button" onClick={() => setShowPassword((v) => !v)} className="absolute right-0 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors">
                         {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                       </button>
