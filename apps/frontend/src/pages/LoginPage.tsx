@@ -25,7 +25,7 @@ export default function LoginPage() {
       {
         onSuccess: (data) => {
           login(data.user, data.token);
-          navigate('/');
+          navigate('/mentors');
         },
       },
     );
@@ -102,6 +102,7 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  minLength={6}
                   placeholder=""
                   className="bg-transparent border-0 border-b border-slate-600 rounded-none px-0 pr-8 text-slate-100 placeholder-slate-600 focus-visible:ring-0 focus-visible:border-indigo-500 transition-colors"
                 />
