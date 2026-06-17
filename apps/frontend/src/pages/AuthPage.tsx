@@ -11,6 +11,10 @@ import { cn } from '@/lib/utils';
 type Tab = 'login' | 'register';
 type RoleChoice = 'STUDENT' | 'MENTOR';
 
+type AuthPageProps = {
+  mode?: Tab;
+};
+
 const GoogleIcon = () => (
   <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none">
     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -26,14 +30,14 @@ const GitHubIcon = () => (
   </svg>
 );
 
-export default function AuthPage() {
+export default function AuthPage({ mode = 'login' }: AuthPageProps) {
   const { login } = useAuth();
   const navigate = useNavigate();
   const loginMutation = useLogin();
   const registerMutation = useRegister();
   const { data: stacks = [] } = useStacks();
 
-  const [tab, setTab] = useState<Tab>('login');
+  const [tab, setTab] = useState<Tab>(mode);
   const [role, setRole] = useState<RoleChoice>('STUDENT');
   const [showPassword, setShowPassword] = useState(false);
 
@@ -162,18 +166,18 @@ export default function AuthPage() {
                     <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="name@company.com" className={inputClass} />
                   </div>
 
-                  <div className="space-y-1">
-                    <div className="flex items-center justify-between">
-                      <Label className="text-slate-500 text-[10px] tracking-widest uppercase">Password</Label>
-                      <button type="button" className="text-slate-500 hover:text-indigo-400 text-[10px] tracking-widest uppercase transition-colors">Forgot?</button>
-                    </div>
-                    <div className="relative">
-                      <Input type={showPassword ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} placeholder="••••••••" className={cn(inputClass, 'pr-7')} />
-                      <button type="button" onClick={() => setShowPassword((v) => !v)} className="absolute right-0 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors">
-                        {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                      </button>
-                    </div>
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-slate-500 text-[10px] tracking-widest uppercase">Password</Label>
+                    <button type="button" className="text-slate-500 hover:text-indigo-400 text-[10px] tracking-widest uppercase transition-colors">Forgot?</button>
                   </div>
+                  <div className="relative">
+                    <Input type={showPassword ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="••••••••" className={cn(inputClass, 'pr-7')} />
+                    <button type="button" onClick={() => setShowPassword((v) => !v)} className="absolute right-0 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors">
+                      {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                    </button>
+                  </div>
+                </div>
 
                   <Button type="submit" disabled={isPending} className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 rounded-xl transition-colors">
                     {isPending ? 'Signing in…' : 'Continue'}
@@ -194,15 +198,15 @@ export default function AuthPage() {
                     <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="name@company.com" className={inputClass} />
                   </div>
 
-                  <div className="space-y-1">
-                    <Label className="text-slate-500 text-[10px] tracking-widest uppercase">Password</Label>
-                    <div className="relative">
-                      <Input type={showPassword ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} placeholder="••••••••" className={cn(inputClass, 'pr-7')} />
-                      <button type="button" onClick={() => setShowPassword((v) => !v)} className="absolute right-0 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors">
-                        {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                      </button>
-                    </div>
+                <div className="space-y-1">
+                  <Label className="text-slate-500 text-[10px] tracking-widest uppercase">Password</Label>
+                  <div className="relative">
+                    <Input type={showPassword ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="••••••••" className={cn(inputClass, 'pr-7')} />
+                    <button type="button" onClick={() => setShowPassword((v) => !v)} className="absolute right-0 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors">
+                      {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                    </button>
                   </div>
+                </div>
 
                   {/* Mentor-only fields */}
                   {role === 'MENTOR' && (
