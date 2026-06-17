@@ -88,19 +88,20 @@ export default function AuthPage() {
   const inputClass = "bg-transparent border-0 border-b border-slate-600 rounded-none px-0 text-slate-100 placeholder-slate-500 focus-visible:ring-0 focus-visible:border-indigo-500 transition-colors text-sm";
 
   return (
-    <div className="min-h-screen bg-[#0d1117] flex flex-col py-6 px-4">
-      {/* App name */}
-      <div className="shrink-0 mb-4 pl-2">
-        <span className="text-white font-bold text-xl tracking-tight">ReviewSphere</span>
+    // Full viewport, scrollable when content exceeds height
+    <div className="min-h-screen bg-[#0d1117] overflow-y-auto">
+      {/* Top bar */}
+      <div className="sticky top-0 z-20 bg-[#0d1117] px-6 py-4 border-b border-slate-800/60">
+        <span className="text-white font-bold text-lg tracking-tight">ReviewSphere</span>
       </div>
 
-      {/* Scrollable centering wrapper */}
-      <div className="flex-1 flex items-start justify-center">
+      {/* Centered content area — grows to fill remaining viewport height */}
+      <div className="flex min-h-[calc(100vh-57px)] items-center justify-center px-4 py-8">
         <div className="w-full max-w-sm">
           <div className="bg-[#161b22] border border-slate-700/50 rounded-2xl shadow-2xl overflow-hidden">
 
             {/* Tabs */}
-            <div className="flex border-b border-slate-700/50 sticky top-0 z-10 bg-[#161b22]">
+            <div className="flex border-b border-slate-700/50">
               {(['login', 'register'] as Tab[]).map((t) => (
                 <button
                   key={t}
@@ -174,7 +175,7 @@ export default function AuthPage() {
                     </div>
                   </div>
 
-                  <Button type="submit" disabled={isPending} className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 rounded-xl transition-colors mt-1">
+                  <Button type="submit" disabled={isPending} className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 rounded-xl transition-colors">
                     {isPending ? 'Signing in…' : 'Continue'}
                   </Button>
                 </form>
