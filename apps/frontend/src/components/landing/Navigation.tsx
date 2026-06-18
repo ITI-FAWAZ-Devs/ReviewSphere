@@ -2,6 +2,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useTheme } from '@/components/ThemeProvider';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import { useAuth } from '@/context/AuthContext';
 import {
   Select,
   SelectContent,
@@ -48,6 +49,7 @@ function NavLink({ to, label, active }: { to: string; label: string; active: boo
 export function Navigation() {
   const { theme, setTheme } = useTheme();
   const { pathname } = useLocation();
+  const { user, logout } = useAuth();
 
   const toggleTheme = () => setTheme(theme === 'dark' ? 'light' : 'dark');
 
@@ -90,12 +92,25 @@ export function Navigation() {
           <Separator orientation="vertical" className="h-6 mx-1 hidden sm:block" />
 
           {/* Auth buttons — Desktop */}
-          <Button variant="ghost" size="sm" asChild className="hidden sm:inline-flex">
-            <Link to="/login">Login</Link>
-          </Button>
-          <Button size="sm" asChild className="bg-primary-container text-on-primary-container hover:bg-primary-container/90 rounded-full">
-            <Link to="/signup">Join Now</Link>
-          </Button>
+          {user ? (
+            <div className="hidden sm:flex items-center gap-4">
+              <Link to="/profile/edit" className="text-sm font-semibold text-muted-foreground hover:text-landing-primary dark:hover:text-primary-fixed-dim transition-colors">
+                {user.name}
+              </Link>
+              <Button size="sm" variant="outline" onClick={logout} className="rounded-full border-outline-variant/60 hover:bg-slate-850">
+                Sign Out
+              </Button>
+            </div>
+          ) : (
+            <>
+              <Button variant="ghost" size="sm" asChild className="hidden sm:inline-flex">
+                <Link to="/login">Login</Link>
+              </Button>
+              <Button size="sm" asChild className="bg-primary-container text-on-primary-container hover:bg-primary-container/90 rounded-full">
+                <Link to="/signup">Join Now</Link>
+              </Button>
+            </>
+          )}
 
           {/* Mobile hamburger */}
           <Sheet>
@@ -120,12 +135,28 @@ export function Navigation() {
                   </Link>
                 ))}
                 <Separator />
-                <Button variant="ghost" size="sm" asChild>
-                  <Link to="/login">Login</Link>
-                </Button>
-                <Button size="sm" asChild className="bg-primary-container text-on-primary-container rounded-full">
-                  <Link to="/signup">Join Now</Link>
-                </Button>
+                {user ? (
+                  <>
+                    <Link
+                      to="/profile/edit"
+                      className="text-sm font-medium py-2 text-muted-foreground hover:text-landing-primary dark:hover:text-primary-fixed-dim"
+                    >
+                      Settings ({user.name})
+                    </Link>
+                    <Button size="sm" variant="outline" onClick={logout} className="w-full rounded-full">
+                      Sign Out
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button variant="ghost" size="sm" asChild>
+                      <Link to="/login">Login</Link>
+                    </Button>
+                    <Button size="sm" asChild className="bg-primary-container text-on-primary-container rounded-full">
+                      <Link to="/signup">Join Now</Link>
+                    </Button>
+                  </>
+                )}
               </div>
             </SheetContent>
           </Sheet>

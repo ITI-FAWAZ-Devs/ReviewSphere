@@ -24,8 +24,16 @@ const ACTIVITY_ITEMS = [
   },
 ] as const;
 
+interface ActivityItemProps {
+  color: string;
+  label: string;
+  labelClass: string;
+  text: string;
+  dimmed?: boolean;
+}
+
 /* ── ActivityItem ───────────────────────────────────────────── */
-function ActivityItem({ color, label, labelClass, text, dimmed }: (typeof ACTIVITY_ITEMS)[number]) {
+function ActivityItem({ color, label, labelClass, text, dimmed }: ActivityItemProps) {
   return (
     <div className={`flex gap-3 ${dimmed ? 'opacity-50' : ''}`}>
       <div className={`w-1 ${color} rounded-full shrink-0`} />
