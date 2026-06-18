@@ -30,11 +30,12 @@ model User {
 }
 
 model StudentProfile {
-  id        String   @id @default(cuid())
-  userId    String   @unique
+  id        String          @id @default(cuid())
+  userId    String          @unique
   name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  sessions  ReviewSession[]
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
@@ -49,20 +50,48 @@ model Stack {
 }
 
 model MentorProfile {
-  id             String   @id @default(cuid())
-  userId         String   @unique
+  id             String               @id @default(cuid())
+  userId         String               @unique
   stackId        String
   name           String
   title          String
   bio            String
   avatarUrl      String?
-  isVerified     Boolean  @default(false)
-  isAvailableNow Boolean  @default(false)
-  averageRating  Float    @default(0)
-  hourlyRate     Float    @default(0)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  isVerified     Boolean              @default(false)
+  isAvailableNow Boolean              @default(false)
+  averageRating  Float                @default(0)
+  hourlyRate     Float                @default(0)
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+  availabilities MentorAvailability[]
+  sessions       ReviewSession[]
 
   user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
   stack Stack @relation(fields: [stackId], references: [id])
+}
+
+model MentorAvailability {
+  id        String   @id @default(cuid())
+  mentorId  String
+  dayOfWeek Int      // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+  startTime String   // "HH:MM" e.g., "09:00"
+  endTime   String   // "HH:MM" e.g., "17:00"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  mentor MentorProfile @relation(fields: [mentorId], references: [id], onDelete: Cascade)
+}
+
+model ReviewSession {
+  id        String   @id @default(cuid())
+  mentorId  String
+  studentId String
+  status    String   @default("Scheduled") // e.g. "Scheduled", "Completed", "Cancelled"
+  startsAt  DateTime
+  endsAt    DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  mentor  MentorProfile  @relation(fields: [mentorId], references: [id], onDelete: Cascade)
+  student StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
 }

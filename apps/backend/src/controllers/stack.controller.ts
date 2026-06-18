@@ -44,7 +44,7 @@ export async function createStack(req: Request, res: Response, next: NextFunctio
 
 export async function updateStack(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const { id } = req.params;
+    const id = String(req.params['id']);
 
     const parsed = updateSchema.safeParse(req.body);
     if (!parsed.success) {
@@ -67,7 +67,7 @@ export async function updateStack(req: Request, res: Response, next: NextFunctio
 
 export async function deleteStack(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const { id } = req.params;
+    const id = String(req.params['id']);
 
     const existing = await prisma.stack.findUnique({ where: { id } });
     if (!existing) {

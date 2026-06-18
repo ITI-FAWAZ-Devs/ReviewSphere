@@ -1,4 +1,5 @@
-import { useState, FormEvent } from 'react';
+import { useState } from 'react';
+import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, GraduationCap, Lightbulb } from 'lucide-react';
 import { Button } from '@/components/ui/button';

@@ -3,9 +3,11 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import LoginPage from '@/pages/LoginPage';
 import SignupPage from '@/pages/SignupPage';
 import LandingPage from '@/pages/LandingPage';
+import MentorProfilePage from '@/pages/MentorProfilePage';
 import { Navigation, Footer } from '@/components/landing';
 
 const MentorDiscovery = lazy(() => import('@/pages/MentorDiscovery'));
+const ProfileEditPage = lazy(() => import('@/pages/ProfileEditPage'));
 
 function PageSpinner() {
   return (
@@ -27,7 +29,8 @@ function App() {
               <Route path="/signup" element={<SignupPage />} />
               <Route path="/" element={<LandingPage />} />
               <Route path="/mentors" element={<MentorDiscovery />} />
-              <Route path="/mentors/:id" element={<MentorDiscovery />} />
+              <Route path="/mentors/:id" element={<MentorProfilePage />} />
+              <Route path="/profile/edit" element={<ProfileEditPage />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </main>
