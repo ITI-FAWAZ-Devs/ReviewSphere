@@ -1,11 +1,10 @@
-import { useSearchParams, Link, useNavigate } from 'react-router-dom';
-import { useEffect, useState, lazy, Suspense } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import { toast } from '@/lib/toast';
 import { useMentors, type MentorFilters } from '@/hooks/useMentors';
 import FilterBar from '@/components/FilterBar';
 import MentorList from '@/components/MentorList';
 import Pagination from '@/components/Pagination';
-import { useAuth } from '@/context/AuthContext';
 
 const SORT_OPTIONS = [
   { value: '',             label: 'Most Relevant' },
@@ -28,8 +27,6 @@ const DEFAULT_FILTERS: MentorFilters = {
 
 export default function MentorDiscovery() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
 
   // Initialise filters from URL query params
   const [filters, setFilters] = useState<MentorFilters>(() => ({
@@ -86,49 +83,7 @@ export default function MentorDiscovery() {
 
   return (
     <div className="min-h-screen bg-slate-950 flex flex-col">
-      {/* ── Navbar ─────────────────────────────────────────────────── */}
-      <header className="bg-slate-900 border-b border-slate-800 sticky top-0 z-30 shadow-sm">
-        <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
-          {/* Logo */}
-          <Link to="/mentors" className="text-indigo-400 font-bold text-xl tracking-tight">
-            MentorHub
-          </Link>
 
-          {/* Nav links */}
-          <nav className="hidden md:flex items-center gap-7 text-sm font-medium">
-            <Link
-              to="/mentors"
-              className="text-indigo-400 border-b-2 border-indigo-400 pb-0.5"
-            >
-              Find Mentors
-            </Link>
-            <a href="#" className="text-slate-400 hover:text-slate-200 transition-colors">About</a>
-            <a href="#" className="text-slate-400 hover:text-slate-200 transition-colors">Pricing</a>
-          </nav>
-
-          {/* CTA */}
-          <div className="flex items-center gap-3">
-            {user ? (
-              <div className="flex items-center gap-3">
-                <span className="text-sm text-slate-300 hidden sm:block">{user.name}</span>
-                <button
-                  onClick={() => { logout(); navigate('/login'); }}
-                  className="text-sm text-slate-400 hover:text-slate-200 transition-colors"
-                >
-                  Sign out
-                </button>
-              </div>
-            ) : (
-              <Link
-                to="/signup"
-                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold rounded-lg transition-colors shadow-sm shadow-indigo-900/20"
-              >
-                Join Now
-              </Link>
-            )}
-          </div>
-        </div>
-      </header>
 
       {/* ── Main layout ────────────────────────────────────────────── */}
       <main className="max-w-7xl mx-auto px-6 py-8 flex gap-7 flex-1 w-full">
@@ -213,20 +168,7 @@ export default function MentorDiscovery() {
         </div>
       </main>
 
-      {/* ── Footer ─────────────────────────────────────────────────── */}
-      <footer className="bg-slate-900 border-t border-slate-800 mt-auto">
-        <div className="max-w-7xl mx-auto px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-slate-500">
-          <div>
-            <span className="font-bold text-indigo-400">MentorHub</span>
-            <span className="ml-3">© {new Date().getFullYear()} MentorHub. All rights reserved.</span>
-          </div>
-          <nav className="flex gap-5">
-            <a href="#" className="hover:text-slate-300 transition-colors">Privacy Policy</a>
-            <a href="#" className="hover:text-slate-300 transition-colors">Terms of Service</a>
-            <a href="#" className="hover:text-slate-300 transition-colors">Cookie Policy</a>
-          </nav>
-        </div>
-      </footer>
+
     </div>
   );
 }
