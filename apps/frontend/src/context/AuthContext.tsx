@@ -1,21 +1,13 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext } from 'react';
+import type { ReactNode } from 'react';
+import { useAuthStore } from '@/store/useAuthStore';
+import type { Role, AuthUser } from '@reviewsphere/types';
 
-export type Role = 'STUDENT' | 'MENTOR' | 'ADMIN';
+export type { Role, AuthUser };
 
-export interface AuthUser {
-  id: string;
-  name: string;
-  email: string;
-  role: Role;
-  createdAt: string;
-}
-
-interface AuthState {
+interface AuthContextValue {
   user: AuthUser | null;
   token: string | null;
-}
-
-interface AuthContextValue extends AuthState {
   login: (user: AuthUser, token: string) => void;
   logout: () => void;
 }
@@ -23,36 +15,10 @@ interface AuthContextValue extends AuthState {
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = useState<AuthState>(() => {
-    try {
-      const token = localStorage.getItem('token');
-      const user = localStorage.getItem('user');
-      return { token, user: user ? (JSON.parse(user) as AuthUser) : null };
-    } catch {
-      return { token: null, user: null };
-    }
-  });
-
-  useEffect(() => {
-    if (state.token && state.user) {
-      localStorage.setItem('token', state.token);
-      localStorage.setItem('user', JSON.stringify(state.user));
-    } else {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-    }
-  }, [state]);
-
-  function login(user: AuthUser, token: string) {
-    setState({ user, token });
-  }
-
-  function logout() {
-    setState({ user: null, token: null });
-  }
+  const { user, token, login, logout } = useAuthStore();
 
   return (
-    <AuthContext.Provider value={{ ...state, login, logout }}>
+    <AuthContext.Provider value={{ user, token, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

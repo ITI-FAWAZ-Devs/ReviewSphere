@@ -166,6 +166,20 @@ async function main() {
     },
   });
 
+  console.log('Seeding availability for all mentors...');
+  const mentors = await prisma.mentorProfile.findMany();
+  for (const m of mentors) {
+    await prisma.mentorAvailability.createMany({
+      data: [
+        { mentorId: m.id, dayOfWeek: 1, startTime: '09:00', endTime: '12:00' },
+        { mentorId: m.id, dayOfWeek: 3, startTime: '13:00', endTime: '17:00' },
+        { mentorId: m.id, dayOfWeek: 4, startTime: '09:00', endTime: '12:00' },
+        { mentorId: m.id, dayOfWeek: 4, startTime: '14:00', endTime: '17:00' },
+        { mentorId: m.id, dayOfWeek: 5, startTime: '10:00', endTime: '16:00' },
+      ],
+    });
+  }
+
   console.log('Seed completed successfully!');
 }
 
