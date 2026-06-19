@@ -7,6 +7,7 @@ import morgan from 'morgan';
 import authRoutes from './routes/auth.routes.js';
 import stackRoutes from './routes/stack.routes.js';
 import mentorRoutes from './routes/mentors.routes.js';
+import sessionRoutes from './routes/sessions.routes.js';
 
 const app = express();
 const PORT = process.env.PORT ?? 3001;
@@ -23,6 +24,7 @@ app.get('/health', (_req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/stacks', stackRoutes);
 app.use('/api/mentors', mentorRoutes);
+app.use('/api/sessions', sessionRoutes);
 
 // Global error handler — always returns JSON
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
