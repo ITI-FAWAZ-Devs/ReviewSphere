@@ -36,12 +36,29 @@ export async function bookSession(req: Request, res: Response, next: NextFunctio
       return;
     }
 
+    const startsAt = new Date(start_time);
+    const endsAt = new Date(end_time);
+
+    const overlapping = await prisma.reviewSession.findFirst({
+      where: {
+        mentorId: mentor_id,
+        status: 'Scheduled',
+        startsAt: { lt: endsAt },
+        endsAt: { gt: startsAt },
+      },
+    });
+
+    if (overlapping) {
+      res.status(400).json({ message: 'This slot is already booked. Please choose another time.' });
+      return;
+    }
+
     const session = await prisma.reviewSession.create({
       data: {
         mentorId: mentor_id,
         studentId: student.id,
-        startsAt: new Date(start_time),
-        endsAt: new Date(end_time),
+        startsAt,
+        endsAt,
       },
     });
 
