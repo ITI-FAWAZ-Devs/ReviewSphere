@@ -9,6 +9,81 @@ const bookSessionSchema = z.object({
   description: z.string().optional(),
 });
 
+export async function getUserSessions(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const sessions = await prisma.reviewSession.findMany({
+      where: {
+        OR: [
+          { mentor: { userId: req.user!.sub } },
+          { student: { userId: req.user!.sub } },
+        ],
+      },
+      include: {
+        mentor: {
+          include: {
+            user: { select: { email: true } },
+            stack: { select: { name: true } },
+          },
+        },
+        student: {
+          include: {
+            user: { select: { email: true } },
+          },
+        },
+      },
+      orderBy: { startsAt: 'desc' },
+    });
+
+    res.status(200).json(sessions);
+  } catch (err) {
+    next(err);
+  }
+}
+
+const updateStatusSchema = z.object({
+  status: z.enum(['Scheduled', 'Completed', 'Canceled']),
+});
+
+export async function updateSessionStatus(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const id = req.params['id'] as string;
+    const parsed = updateStatusSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ message: 'Validation error', errors: parsed.error.flatten().fieldErrors });
+      return;
+    }
+
+    const session = await prisma.reviewSession.findUnique({
+      where: { id },
+      select: { mentorId: true, studentId: true },
+    });
+
+    if (!session) {
+      res.status(404).json({ message: 'Session not found' });
+      return;
+    }
+
+    const [mentor, student] = await Promise.all([
+      prisma.mentorProfile.findUnique({ where: { id: session.mentorId }, select: { userId: true } }),
+      prisma.studentProfile.findUnique({ where: { id: session.studentId }, select: { userId: true } }),
+    ]);
+
+    if (mentor?.userId !== req.user!.sub && student?.userId !== req.user!.sub) {
+      res.status(403).json({ message: 'Forbidden: you are not part of this session' });
+      return;
+    }
+
+    const updated = await prisma.reviewSession.update({
+      where: { id },
+      data: { status: parsed.data.status },
+    });
+
+    res.status(200).json(updated);
+  } catch (err) {
+    next(err);
+  }
+}
+
 export async function bookSession(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const parsed = bookSessionSchema.safeParse(req.body);
