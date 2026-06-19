@@ -84,6 +84,59 @@ export async function updateSessionStatus(req: Request, res: Response, next: Nex
   }
 }
 
+const submitFeedbackSchema = z.object({
+  rating: z.number().min(1).max(5),
+  feedback: z.string().min(1, 'feedback is required'),
+});
+
+export async function submitFeedback(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const id = req.params['id'] as string;
+    const parsed = submitFeedbackSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ message: 'Validation error', errors: parsed.error.flatten().fieldErrors });
+      return;
+    }
+
+    const session = await prisma.reviewSession.findUnique({
+      where: { id },
+      select: { status: true, studentId: true },
+    });
+
+    if (!session) {
+      res.status(404).json({ message: 'Session not found' });
+      return;
+    }
+
+    if (session.status !== 'Completed') {
+      res.status(400).json({ message: 'Feedback can only be submitted for completed sessions' });
+      return;
+    }
+
+    const student = await prisma.studentProfile.findUnique({
+      where: { id: session.studentId },
+      select: { userId: true },
+    });
+
+    if (student?.userId !== req.user!.sub) {
+      res.status(403).json({ message: 'Forbidden: only the student can submit feedback' });
+      return;
+    }
+
+    const updated = await prisma.reviewSession.update({
+      where: { id },
+      data: {
+        rating: parsed.data.rating,
+        feedback: parsed.data.feedback,
+      },
+    });
+
+    res.status(200).json(updated);
+  } catch (err) {
+    next(err);
+  }
+}
+
 export async function bookSession(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const parsed = bookSessionSchema.safeParse(req.body);
