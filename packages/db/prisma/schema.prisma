@@ -89,6 +89,8 @@ model ReviewSession {
   status    String   @default("Scheduled") // e.g. "Scheduled", "Completed", "Cancelled"
   startsAt  DateTime
   endsAt    DateTime
+  rating    Float?
+  feedback  String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
