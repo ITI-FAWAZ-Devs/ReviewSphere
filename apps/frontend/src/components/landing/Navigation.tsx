@@ -24,6 +24,11 @@ const NAV_LINKS = [
   { to: '/#resources', label: 'Resources' },
 ] as const;
 
+const STUDENT_NAV_LINKS = [
+  { to: '/dashboard', label: 'My Sessions' },
+  { to: '/mentors', label: 'Find Mentors' },
+] as const;
+
 const LANGUAGES = [
   { code: 'en', label: 'EN' },
   { code: 'ar', label: 'AR' },
@@ -63,7 +68,7 @@ export function Navigation() {
 
         {/* Desktop nav links */}
         <div className="hidden md:flex items-center gap-7">
-          {NAV_LINKS.map(({ to, label }) => (
+          {(user?.role === 'STUDENT' ? STUDENT_NAV_LINKS : NAV_LINKS).map(({ to, label }) => (
             <NavLink key={to} to={to} label={label} active={pathname === to} />
           ))}
         </div>
