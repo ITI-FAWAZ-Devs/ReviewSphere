@@ -4,6 +4,7 @@ import LoginPage from '@/pages/LoginPage';
 import SignupPage from '@/pages/SignupPage';
 import LandingPage from '@/pages/LandingPage';
 import MentorProfilePage from '@/pages/MentorProfilePage';
+import StudentDashboard from '@/pages/StudentDashboard';
 import { Navigation, Footer } from '@/components/landing';
 
 const MentorDiscovery = lazy(() => import('@/pages/MentorDiscovery'));
@@ -31,6 +32,7 @@ function App() {
               <Route path="/mentors" element={<MentorDiscovery />} />
               <Route path="/mentors/:id" element={<MentorProfilePage />} />
               <Route path="/profile/edit" element={<ProfileEditPage />} />
+              <Route path="/dashboard" element={<StudentDashboard />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </main>

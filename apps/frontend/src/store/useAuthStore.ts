@@ -16,7 +16,10 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       token: null,
       login: (user, token) => set({ user, token }),
-      logout: () => set({ user: null, token: null }),
+      logout: () => {
+        set({ user: null, token: null });
+        window.location.href = '/';
+      },
       updateUser: (userUpdates) =>
         set((state) => ({
           user: state.user ? { ...state.user, ...userUpdates } : null,

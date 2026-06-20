@@ -68,7 +68,10 @@ export default function AuthPage({ mode = 'login' }: AuthPageProps) {
   function handleLogin(e: FormEvent) {
     e.preventDefault();
     loginMutation.mutate({ email, password }, {
-      onSuccess: (data) => { login(data.user, data.token); navigate('/mentors'); },
+      onSuccess: (data) => { 
+        login(data.user, data.token); 
+        navigate(data.user.role === 'STUDENT' ? '/dashboard' : '/mentors');
+      },
     });
   }
 
@@ -80,7 +83,10 @@ export default function AuthPage({ mode = 'login' }: AuthPageProps) {
       : { ...base, role: 'STUDENT' as const };
 
     registerMutation.mutate(payload, {
-      onSuccess: (data) => { login(data.user, data.token); navigate('/mentors'); },
+      onSuccess: (data) => { 
+        login(data.user, data.token); 
+        navigate(data.user.role === 'STUDENT' ? '/dashboard' : '/mentors');
+      },
     });
   }
 
