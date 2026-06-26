@@ -11,11 +11,12 @@ const bookSessionSchema = z.object({
 
 export async function getUserSessions(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
+    const reqUser = req.user as any;
     const sessions = await prisma.reviewSession.findMany({
       where: {
         OR: [
-          { mentor: { userId: req.user!.sub } },
-          { student: { userId: req.user!.sub } },
+          { mentor: { userId: reqUser.sub } },
+          { student: { userId: reqUser.sub } },
         ],
       },
       include: {
@@ -41,7 +42,8 @@ export async function getUserSessions(req: Request, res: Response, next: NextFun
 }
 
 const updateStatusSchema = z.object({
-  status: z.enum(['Scheduled', 'Completed', 'Canceled']),
+  status: z.enum(['Scheduled', 'Completed', 'Canceled', 'Cancelled']),
+  evaluationNotes: z.string().optional(),
 });
 
 export async function updateSessionStatus(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -55,7 +57,7 @@ export async function updateSessionStatus(req: Request, res: Response, next: Nex
 
     const session = await prisma.reviewSession.findUnique({
       where: { id },
-      select: { mentorId: true, studentId: true },
+      select: { mentorId: true, studentId: true, status: true },
     });
 
     if (!session) {
@@ -68,14 +70,42 @@ export async function updateSessionStatus(req: Request, res: Response, next: Nex
       prisma.studentProfile.findUnique({ where: { id: session.studentId }, select: { userId: true } }),
     ]);
 
-    if (mentor?.userId !== req.user!.sub && student?.userId !== req.user!.sub) {
-      res.status(403).json({ message: 'Forbidden: you are not part of this session' });
+    const reqUser = req.user as any;
+    const isAuthorized =
+      mentor?.userId === reqUser.sub ||
+      student?.userId === reqUser.sub ||
+      reqUser.role === 'ADMIN';
+
+    if (!isAuthorized) {
+      res.status(403).json({ message: 'Forbidden: you are not authorized to update this session' });
       return;
     }
 
-    const updated = await prisma.reviewSession.update({
-      where: { id },
-      data: { status: parsed.data.status },
+    const updated = await prisma.$transaction(async (tx) => {
+      const dataToUpdate: any = { status: parsed.data.status };
+      if (parsed.data.evaluationNotes !== undefined) {
+        dataToUpdate.evaluationNotes = parsed.data.evaluationNotes;
+      }
+
+      const upd = await tx.reviewSession.update({
+        where: { id },
+        data: dataToUpdate,
+      });
+
+      await tx.sessionAuditLog.create({
+        data: {
+          sessionId: id,
+          action: 'STATUS_UPDATED',
+          payload: {
+            oldStatus: session.status,
+            newStatus: parsed.data.status,
+            evaluationNotes: parsed.data.evaluationNotes,
+          },
+          performedBy: reqUser.sub,
+        },
+      });
+
+      return upd;
     });
 
     res.status(200).json(updated);
@@ -118,7 +148,8 @@ export async function submitFeedback(req: Request, res: Response, next: NextFunc
       select: { userId: true },
     });
 
-    if (student?.userId !== req.user!.sub) {
+    const reqUser = req.user as any;
+    if (student?.userId !== reqUser.sub) {
       res.status(403).json({ message: 'Forbidden: only the student can submit feedback' });
       return;
     }
@@ -153,12 +184,13 @@ export async function bookSession(req: Request, res: Response, next: NextFunctio
       return;
     }
 
-    if (mentor.userId === req.user!.sub) {
+    const reqUser = req.user as any;
+    if (mentor.userId === reqUser.sub) {
       res.status(400).json({ message: 'Cannot book a session with yourself' });
       return;
     }
 
-    const student = await prisma.studentProfile.findUnique({ where: { userId: req.user!.sub } });
+    const student = await prisma.studentProfile.findUnique({ where: { userId: reqUser.sub } });
     if (!student) {
       res.status(404).json({ message: 'Student profile not found' });
       return;
@@ -167,31 +199,100 @@ export async function bookSession(req: Request, res: Response, next: NextFunctio
     const startsAt = new Date(start_time);
     const endsAt = new Date(end_time);
 
-    const overlapping = await prisma.reviewSession.findFirst({
-      where: {
-        mentorId: mentor_id,
-        status: 'Scheduled',
-        startsAt: { lt: endsAt },
-        endsAt: { gt: startsAt },
-      },
-    });
+    const session = await prisma.$transaction(async (tx) => {
+      // 1. Concurrency lock: row lock on MentorProfile to serialize booking for the same mentor
+      await tx.$queryRaw`SELECT id FROM "MentorProfile" WHERE id = ${mentor_id} FOR UPDATE`;
 
-    if (overlapping) {
-      res.status(400).json({ message: 'This slot is already booked. Please choose another time.' });
-      return;
-    }
+      // 2. Overlap check
+      const overlapping = await tx.reviewSession.findFirst({
+        where: {
+          mentorId: mentor_id,
+          status: 'Scheduled',
+          startsAt: { lt: endsAt },
+          endsAt: { gt: startsAt },
+        },
+      });
 
-    const session = await prisma.reviewSession.create({
-      data: {
-        mentorId: mentor_id,
-        studentId: student.id,
-        startsAt,
-        endsAt,
-      },
+      if (overlapping) {
+        throw new Error('OVERLAP');
+      }
+
+      // 3. Create ReviewSession
+      const sess = await tx.reviewSession.create({
+        data: {
+          mentorId: mentor_id,
+          studentId: student.id,
+          startsAt,
+          endsAt,
+        },
+      });
+
+      // 4. Create SessionAuditLog
+      await tx.sessionAuditLog.create({
+        data: {
+          sessionId: sess.id,
+          action: 'BOOKED',
+          payload: {
+            mentorId: mentor_id,
+            studentId: student.id,
+            startsAt: startsAt.toISOString(),
+            endsAt: endsAt.toISOString(),
+          },
+          performedBy: reqUser.sub,
+        },
+      });
+
+      return sess;
     });
 
     res.status(201).json(session);
+  } catch (err: any) {
+    if (err.message === 'OVERLAP') {
+      res.status(409).json({ message: 'This slot is already booked. Please choose another time.' });
+      return;
+    }
+    next(err);
+  }
+}
+
+export async function getSessionAudit(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const id = req.params['id'] as string;
+
+    const session = await prisma.reviewSession.findUnique({
+      where: { id },
+      select: { mentorId: true, studentId: true },
+    });
+
+    if (!session) {
+      res.status(404).json({ message: 'Session not found' });
+      return;
+    }
+
+    const [mentor, student] = await Promise.all([
+      prisma.mentorProfile.findUnique({ where: { id: session.mentorId }, select: { userId: true } }),
+      prisma.studentProfile.findUnique({ where: { id: session.studentId }, select: { userId: true } }),
+    ]);
+
+    const reqUser = req.user as any;
+    const isAuthorized =
+      mentor?.userId === reqUser.sub ||
+      student?.userId === reqUser.sub ||
+      reqUser.role === 'ADMIN';
+
+    if (!isAuthorized) {
+      res.status(403).json({ message: 'Forbidden: you cannot view audit logs for this session' });
+      return;
+    }
+
+    const logs = await prisma.sessionAuditLog.findMany({
+      where: { sessionId: id },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    res.status(200).json(logs);
   } catch (err) {
     next(err);
   }
 }
+

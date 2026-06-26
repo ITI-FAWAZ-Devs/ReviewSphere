@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
+import { Code2 } from 'lucide-react';
 
 /* ── Mentor data ────────────────────────────────────────────── */
 const MENTORS = [
@@ -14,7 +16,7 @@ const MENTORS = [
     name: 'Maya V.',
     role: 'Senior UX Lead',
     tags: ['Figma', 'Design Systems'],
-    icon: 'code_blocks',
+    icon: true,
   },
   {
     name: 'Dr. Linda K.',
@@ -27,59 +29,61 @@ const MENTORS = [
 /* ── MentorCard ─────────────────────────────────────────────── */
 function MentorCard({ mentor }: { mentor: (typeof MENTORS)[number] }) {
   return (
-    <Card className="break-inside-avoid glass-card border-0 hover:bg-surface-container-high/10 transition-all cursor-pointer group">
-      <CardContent className="p-5">
-        {/* Image or placeholder icon */}
-        {'image' in mentor ? (
-          <img
-            className="w-full rounded-lg mb-3 grayscale group-hover:grayscale-0 transition-all"
-            alt={mentor.name}
-            src={mentor.image}
-          />
-        ) : (
-          <div className="h-40 w-full bg-gradient-to-tr from-secondary-container/20 to-landing-primary/20 rounded-lg mb-3 flex items-center justify-center">
-            <span className="material-symbols-outlined text-on-background/50 dark:text-inverse-on-surface/50 text-6xl">
-              {mentor.icon}
-            </span>
+    <Link to="/mentors" className="block">
+      <Card className="break-inside-avoid bg-card border border-border hover:border-rs-accent/30 transition-all cursor-pointer group rounded-2xl shadow-sm hover:shadow-md">
+        <CardContent className="p-5">
+          {/* Image or placeholder icon */}
+          {'image' in mentor ? (
+            <img
+              className="w-full rounded-lg mb-3 grayscale group-hover:grayscale-0 transition-all"
+              alt={mentor.name}
+              src={mentor.image}
+            />
+          ) : (
+            <div className="h-40 w-full bg-gradient-to-tr from-rs-accent/10 to-rs-accent/20 rounded-lg mb-3 flex items-center justify-center">
+              <Code2 className="text-rs-accent text-6xl w-14 h-14" />
+            </div>
+          )}
+
+          <h4 className="text-lg font-bold text-foreground">
+            {mentor.name}
+          </h4>
+          <p className="text-xs font-semibold text-rs-accent mb-3">{mentor.role}</p>
+
+          <div className="flex flex-wrap gap-1.5">
+            {mentor.tags.map((tag) => (
+              <Badge key={tag} variant="outline" className="text-[10px] px-2 py-0 font-mono text-muted-foreground border-border bg-muted">
+                {tag}
+              </Badge>
+            ))}
           </div>
-        )}
-
-        <h4 className="text-lg font-medium text-on-background dark:text-inverse-on-surface">
-          {mentor.name}
-        </h4>
-        <p className="text-xs font-medium text-primary-fixed-dim mb-3">{mentor.role}</p>
-
-        <div className="flex flex-wrap gap-1.5">
-          {mentor.tags.map((tag) => (
-            <Badge key={tag} variant="outline" className="text-[10px] px-2 py-0">
-              {tag}
-            </Badge>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </Link>
   );
 }
 
 /* ── DiscoveryTeaser ────────────────────────────────────────── */
 export function DiscoveryTeaser() {
+  const { t } = useTranslation();
+
   return (
     <section className="py-8 max-w-7xl mx-auto px-6">
       {/* Header */}
       <div className="flex justify-between items-end mb-8">
         <div>
-          <h2 className="text-3xl font-semibold tracking-tight text-on-background dark:text-inverse-on-surface">
-            Explore the Network
+          <h2 className="text-3xl font-semibold tracking-tight text-foreground">
+            {t('landing.discovery.title')}
           </h2>
           <p className="text-base text-muted-foreground mt-1">
-            Meet the engineers shaping the future of tech.
+            {t('landing.discovery.subtitle')}
           </p>
         </div>
         <Link
           to="/mentors"
-          className="hidden md:block text-primary-fixed-dim text-xs font-medium hover:underline decoration-2 underline-offset-8"
+          className="hidden md:block text-rs-accent text-xs font-bold hover:underline decoration-2 underline-offset-8"
         >
-          VIEW ALL MENTORS
+          {t('mentor.profile.backToDiscovery').toUpperCase()}
         </Link>
       </div>
 

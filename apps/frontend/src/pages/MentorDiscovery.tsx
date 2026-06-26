@@ -1,17 +1,11 @@
 import { useSearchParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { toast } from '@/lib/toast';
 import { useMentors, type MentorFilters } from '@/hooks/useMentors';
 import FilterBar from '@/components/FilterBar';
 import MentorList from '@/components/MentorList';
 import Pagination from '@/components/Pagination';
-
-const SORT_OPTIONS = [
-  { value: '',             label: 'Most Relevant' },
-  { value: 'rating',       label: 'Highest Rated' },
-  { value: 'price',        label: 'Lowest Price' },
-  { value: 'availability', label: 'Available Now' },
-] as const;
 
 const DEFAULT_FILTERS: MentorFilters = {
   stack:      '',
@@ -27,6 +21,14 @@ const DEFAULT_FILTERS: MentorFilters = {
 
 export default function MentorDiscovery() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const { t } = useTranslation();
+
+  const sortOptions = [
+    { value: '',             label: t('mentor.discovery.sortRelevant') },
+    { value: 'rating',       label: t('mentor.discovery.sortRated') },
+    { value: 'price',        label: t('mentor.discovery.sortPrice') },
+    { value: 'availability', label: t('mentor.discovery.sortAvailable') },
+  ];
 
   // Initialise filters from URL query params
   const [filters, setFilters] = useState<MentorFilters>(() => ({
@@ -61,6 +63,7 @@ export default function MentorDiscovery() {
   useEffect(() => {
     const pageFromUrl = Number(searchParams.get('page') ?? 1);
     if (pageFromUrl !== filters.page) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFilters((f) => ({ ...f, page: pageFromUrl }));
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -82,9 +85,7 @@ export default function MentorDiscovery() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col">
-
-
+    <div className="min-h-screen bg-background flex flex-col">
       {/* ── Main layout ────────────────────────────────────────────── */}
       <main className="max-w-7xl mx-auto px-6 py-8 flex gap-7 flex-1 w-full">
         {/* Sidebar */}
@@ -101,22 +102,18 @@ export default function MentorDiscovery() {
           {/* Content header */}
           <div className="flex items-start justify-between mb-6 gap-4 flex-wrap">
             <div>
-              <h1 className="text-2xl font-bold text-slate-100">Expert Mentors</h1>
+              <h1 className="text-2xl font-bold text-foreground">{t('mentor.discovery.title')}</h1>
               {!loading && (
-                <p className="text-sm text-slate-400 mt-1">
-                  Showing{' '}
-                  <span className="font-semibold text-slate-200">
-                    {pagination.totalCount.toLocaleString()}
-                  </span>{' '}
-                  available mentors tailored to your stack.
+                <p className="text-sm text-muted-foreground mt-1">
+                  {t('mentor.discovery.showing', { count: pagination.totalCount })}
                 </p>
               )}
             </div>
 
             {/* Sort by */}
             <div className="flex items-center gap-2 flex-shrink-0">
-              <label htmlFor="sort-select" className="text-sm text-slate-400">
-                Sort by:
+              <label htmlFor="sort-select" className="text-sm text-muted-foreground">
+                {t('mentor.discovery.sortBy')}:
               </label>
               <select
                 id="sort-select"
@@ -127,9 +124,9 @@ export default function MentorDiscovery() {
                     page: 1,
                   })
                 }
-                className="text-sm font-semibold text-indigo-400 border border-slate-700 rounded-lg px-3 py-1.5 bg-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition cursor-pointer"
+                className="text-sm font-semibold text-rs-accent border border-border rounded-lg px-3 py-1.5 bg-card focus:outline-none focus:ring-2 focus:ring-rs-accent/30 transition cursor-pointer"
               >
-                {SORT_OPTIONS.map((o) => (
+                {sortOptions.map((o) => (
                   <option key={o.value} value={o.value}>
                     {o.label}
                   </option>
@@ -139,10 +136,10 @@ export default function MentorDiscovery() {
           </div>
 
           {/* Mobile filters (collapsed) */}
-          <details className="lg:hidden mb-5 bg-slate-900 border border-slate-800 rounded-2xl shadow-sm">
-            <summary className="px-5 py-3 text-sm font-semibold text-slate-200 cursor-pointer select-none list-none flex items-center justify-between">
-              <span>Filters</span>
-              <svg className="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <details className="lg:hidden mb-5 bg-card border border-border rounded-2xl shadow-sm">
+            <summary className="px-5 py-3 text-sm font-semibold text-foreground cursor-pointer select-none list-none flex items-center justify-between">
+              <span>{t('filter.title')}</span>
+              <svg className="w-4 h-4 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
             </summary>
@@ -167,8 +164,6 @@ export default function MentorDiscovery() {
           )}
         </div>
       </main>
-
-
     </div>
   );
 }

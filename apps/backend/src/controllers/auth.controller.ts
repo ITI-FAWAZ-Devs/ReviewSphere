@@ -143,7 +143,12 @@ export async function login(req: Request, res: Response, next: NextFunction): Pr
       return;
     }
 
-    const valid = await bcrypt.compare(password, user.password);
+    if (user.status === 'BLOCKED') {
+      res.status(403).json({ message: 'Your account has been blocked by an administrator.' });
+      return;
+    }
+
+    const valid = await bcrypt.compare(password, user.password || '');
     if (!valid) {
       res.status(401).json({ message: 'Invalid email or password' });
       return;

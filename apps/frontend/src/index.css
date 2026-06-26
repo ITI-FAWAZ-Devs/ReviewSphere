@@ -3,49 +3,78 @@
 @tailwind utilities;
 
 @layer base {
+  /* ── Light Mode (default) ──────────────────────────────────── */
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-    --radius: 0.5rem;
+    /* ReviewSphere semantic tokens */
+    --rs-bg-base:      #FFFFFF;
+    --rs-bg-surface:   #F4F6FA;
+    --rs-bg-elevated:  #ECEEF4;
+    --rs-border:       #DDE1EC;
+    --rs-text-primary: #0D0F1A;
+    --rs-text-muted:   #6B7280;
+    --rs-accent:       #4F6EF7;
+    --rs-accent-hover: #3B55E0;
+    --rs-success:      #22C55E;
+    --rs-warning:      #F59E0B;
+    --rs-danger:       #EF4444;
+
+    /* shadcn/ui HSL tokens — light */
+    --background:          0 0% 100%;
+    --foreground:          232 53% 8%;
+    --card:                228 33% 97%;
+    --card-foreground:     232 53% 8%;
+    --popover:             0 0% 100%;
+    --popover-foreground:  232 53% 8%;
+    --primary:             229 91% 64%;
+    --primary-foreground:  0 0% 100%;
+    --secondary:           228 25% 95%;
+    --secondary-foreground:232 53% 8%;
+    --muted:               228 25% 95%;
+    --muted-foreground:    220 9% 46%;
+    --accent:              228 25% 95%;
+    --accent-foreground:   232 53% 8%;
+    --destructive:         0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border:              226 27% 90%;
+    --input:               226 27% 90%;
+    --ring:                229 91% 64%;
+    --radius:              0.625rem;
   }
 
+  /* ── Dark Mode ─────────────────────────────────────────────── */
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --rs-bg-base:      #0F1117;
+    --rs-bg-surface:   #1A1D27;
+    --rs-bg-elevated:  #222535;
+    --rs-border:       #2E3248;
+    --rs-text-primary: #E8EAFA;
+    --rs-text-muted:   #8892B0;
+    --rs-accent:       #6B8AFF;
+    --rs-accent-hover: #5A78F0;
+    --rs-success:      #4ADE80;
+    --rs-warning:      #FCD34D;
+    --rs-danger:       #F87171;
+
+    /* shadcn/ui HSL tokens — dark */
+    --background:          228 29% 7%;
+    --foreground:          231 55% 95%;
+    --card:                227 21% 13%;
+    --card-foreground:     231 55% 95%;
+    --popover:             228 29% 7%;
+    --popover-foreground:  231 55% 95%;
+    --primary:             227 100% 71%;
+    --primary-foreground:  228 29% 7%;
+    --secondary:           228 21% 17%;
+    --secondary-foreground:231 55% 95%;
+    --muted:               228 21% 17%;
+    --muted-foreground:    222 18% 61%;
+    --accent:              228 21% 17%;
+    --accent-foreground:   231 55% 95%;
+    --destructive:         0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --border:              230 22% 23%;
+    --input:               230 22% 23%;
+    --ring:                227 100% 71%;
   }
 }
 
@@ -55,49 +84,40 @@
   }
   body {
     @apply bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
-.landing-page-root {
-    background-color: #f8f9ff;
-    color: #0b1c30;
-    -webkit-font-smoothing: antialiased;
+/* ── Scrollbar styling ─────────────────────────────────────── */
+@layer utilities {
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: var(--rs-border);
+    border-radius: 3px;
+  }
 }
 
-.dark .landing-page-root {
-    background-color: #0b1c30;
-    color: #eaf1ff;
-}
-
-.glass-card {
-    background: rgba(255, 255, 255, 0.4);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(0, 0, 0, 0.05);
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
-}
-
-.dark .glass-card {
-    background: rgba(255, 255, 255, 0.03);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-}
-.glow-accent {
-    filter: drop-shadow(0 0 15px rgba(53, 37, 205, 0.4));
-}
+/* ── Scroll animation for landing page ─────────────────────── */
 @keyframes scroll {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-50%); }
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
 }
 .animate-scroll {
-    display: flex;
-    width: max-content;
-    animation: scroll 40s linear infinite;
+  display: flex;
+  width: max-content;
+  animation: scroll 40s linear infinite;
 }
 .animate-scroll:hover {
-    animation-play-state: paused;
+  animation-play-state: paused;
 }
-.noise-bg {
-    background-image: url("https://www.transparenttextures.com/patterns/carbon-fibre.png");
-    opacity: 0.03;
+
+/* ── RTL support ───────────────────────────────────────────── */
+[dir="rtl"] .animate-scroll {
+  animation-direction: reverse;
 }

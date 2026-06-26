@@ -29,11 +29,11 @@ function show(message: string, type: ToastType = 'info') {
     border-radius: 10px;
     font-size: 14px;
     font-weight: 500;
-    color: #fff;
+    color: #ffffff;
     box-shadow: 0 4px 16px rgba(0,0,0,0.15);
     animation: toastIn 0.2s ease forwards;
     max-width: 360px;
-    background: ${type === 'error' ? '#ef4444' : type === 'success' ? '#22c55e' : '#6366f1'};
+    background: ${type === 'error' ? 'var(--rs-danger, #ef4444)' : type === 'success' ? 'var(--rs-success, #22c55e)' : 'var(--rs-accent, #4f6ef7)'};
   `;
   el.textContent = message;
 

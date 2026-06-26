@@ -1,15 +1,14 @@
 import { Request, Response, NextFunction } from 'express';
 import { verifyToken, JwtPayload } from '../lib/jwt.js';
+import { prisma } from '@reviewsphere/db';
 
 declare global {
   namespace Express {
-    interface Request {
-      user?: JwtPayload;
-    }
+    interface User extends JwtPayload {}
   }
 }
 
-export function authenticate(req: Request, res: Response, next: NextFunction): void {
+export async function authenticate(req: Request, res: Response, next: NextFunction): Promise<void> {
   const authHeader = req.headers.authorization;
 
   if (!authHeader?.startsWith('Bearer ')) {
@@ -20,7 +19,19 @@ export function authenticate(req: Request, res: Response, next: NextFunction): v
   const token = authHeader.slice(7);
 
   try {
-    req.user = verifyToken(token);
+    const payload = verifyToken(token);
+
+    const user = await prisma.user.findUnique({
+      where: { id: payload.sub },
+      select: { status: true },
+    });
+
+    if (!user || user.status === 'BLOCKED') {
+      res.status(403).json({ message: 'Your account has been blocked.' });
+      return;
+    }
+
+    req.user = payload;
     next();
   } catch {
     res.status(401).json({ message: 'Invalid or expired token' });

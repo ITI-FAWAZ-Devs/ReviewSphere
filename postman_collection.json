@@ -1,0 +1,639 @@
+{
+  "info": {
+    "_postman_id": "74a2bfa5-25e6-47d6-8bc5-f54686d3fde7",
+    "name": "ReviewSphere API",
+    "description": "API collection for ReviewSphere (MentorHub) platform, including authentication, oauth, mentors discovery, sessions booking, session audit trails, tech stacks CRUD, and administrator user moderation.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Authentication & OAuth",
+      "item": [
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"student@iti.gov.eg\",\n  \"password\": \"Password123\",\n  \"role\": \"STUDENT\",\n  \"name\": \"Ali Student\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Registers a new user (STUDENT or MENTOR) on the platform."
+          },
+          "response": []
+        },
+        {
+          "name": "Login User",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"student@iti.gov.eg\",\n  \"password\": \"Password123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Authenticates a user and returns a signed JWT token."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Authenticated Profile",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/profile",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "profile"
+              ]
+            },
+            "description": "Returns the authenticated user's profile information."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Ali Student Updated\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/profile",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "profile"
+              ]
+            },
+            "description": "Updates profile details (e.g. name for Student, or bio/hourlyRate/availabilities for Mentor)."
+          },
+          "response": []
+        },
+        {
+          "name": "GitHub OAuth Redirect",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/github",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "github"
+              ]
+            },
+            "description": "Initiates the GitHub OAuth flow."
+          },
+          "response": []
+        },
+        {
+          "name": "GitHub OAuth Callback",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/github/callback",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "github",
+                "callback"
+              ]
+            },
+            "description": "OAuth callback handled by Passport GitHub Strategy, which signs a JWT token and redirects to the frontend callback."
+          },
+          "response": []
+        },
+        {
+          "name": "Google OAuth Redirect",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/google",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "google"
+              ]
+            },
+            "description": "Initiates the Google OAuth flow."
+          },
+          "response": []
+        },
+        {
+          "name": "Google OAuth Callback",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/google/callback",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "google",
+                "callback"
+              ]
+            },
+            "description": "OAuth callback handled by Passport Google Strategy, which signs a JWT token and redirects to the frontend callback."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Mentors & Availability",
+      "item": [
+        {
+          "name": "Filter and List Mentors",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/mentors?stack=&sort_by=rating&keyword=&page=1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "mentors"
+              ],
+              "query": [
+                {
+                  "key": "stack",
+                  "value": "",
+                  "description": "Stack ID to filter"
+                },
+                {
+                  "key": "sort_by",
+                  "value": "rating",
+                  "description": "Sort logic: rating | price | availability"
+                },
+                {
+                  "key": "keyword",
+                  "value": "",
+                  "description": "Search keyword"
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page offset"
+                }
+              ]
+            },
+            "description": "Queries all mentors with optional tech stack filter, keyword search, rating/price/availability sorting, and pagination support."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Mentor Availability for Date",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/mentors/{{mentorId}}/availability?date=2026-06-30",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "mentors",
+                "{{mentorId}}",
+                "availability"
+              ],
+              "query": [
+                {
+                  "key": "date",
+                  "value": "2026-06-30"
+                }
+              ]
+            },
+            "description": "Returns open availability timeframes for the specified mentor on the given date (filtering out booked sessions)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Review Sessions",
+      "item": [
+        {
+          "name": "Book Session",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mentor_id\": \"{{mentorId}}\",\n  \"start_time\": \"2026-06-30T10:00:00Z\",\n  \"end_time\": \"2026-06-30T11:00:00Z\",\n  \"description\": \"Need feedback on my architecture diagram.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/sessions/book",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "sessions",
+                "book"
+              ]
+            },
+            "description": "Books a mentorship session with a row-level locked transaction check for overlaps. Returns 409 Conflict if overlap occurs."
+          },
+          "response": []
+        },
+        {
+          "name": "List User Sessions",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/sessions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "sessions"
+              ]
+            },
+            "description": "Lists all sessions related to the authenticated user (Student or Mentor)."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Session Status",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Completed\",\n  \"evaluationNotes\": \"Very productive session! Student has a solid understanding of Node streams.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/sessions/{{sessionId}}/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "sessions",
+                "{{sessionId}}",
+                "status"
+              ]
+            },
+            "description": "Updates a session's status (Canceled | Completed | Scheduled). Supports writing evaluation notes and logging to the audit log trail."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Session Audit Trail",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/sessions/{{sessionId}}/audit",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "sessions",
+                "{{sessionId}}",
+                "audit"
+              ]
+            },
+            "description": "Retrieves the history of all changes made to a session (booking, completion, cancellations)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin Panel Operations",
+      "item": [
+        {
+          "name": "List Users for Moderation",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/users?keyword=&page=1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "users"
+              ],
+              "query": [
+                {
+                  "key": "keyword",
+                  "value": ""
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Lists users inside the moderation table with sorting, search filters, and page offsets (Admin only)."
+          },
+          "response": []
+        },
+        {
+          "name": "Moderate User Status",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"BLOCKED\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/users/{{userId}}/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "users",
+                "{{userId}}",
+                "status"
+              ]
+            },
+            "description": "Updates user moderation state. Blocks or unblocks a user (Admin only)."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Tech Stack",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Rust & WebAssembly\",\n  \"description\": \"System coding and high performance backend web components.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/stacks",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "stacks"
+              ]
+            },
+            "description": "Registers a new Tech Stack profile (Admin only)."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Tech Stack",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/stacks/{{stackId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "stacks",
+                "{{stackId}}"
+              ]
+            },
+            "description": "Removes a Tech Stack by ID (Admin only)."
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3001/api",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "mentorId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "sessionId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "stackId",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}

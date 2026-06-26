@@ -166,6 +166,15 @@ async function main() {
     },
   });
 
+  // Admin User
+  await prisma.user.create({
+    data: {
+      email: 'admin@example.com',
+      password: defaultPassword,
+      role: 'ADMIN',
+    },
+  });
+
   console.log('Seeding availability for all mentors...');
   const mentors = await prisma.mentorProfile.findMany();
   for (const m of mentors) {

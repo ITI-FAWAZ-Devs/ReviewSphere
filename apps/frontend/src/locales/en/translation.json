@@ -1,0 +1,297 @@
+{
+  "common": {
+    "appName": "ReviewSphere",
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "back": "Back",
+    "search": "Search",
+    "noResults": "No results found",
+    "error": "Something went wrong",
+    "retry": "Try again",
+    "confirm": "Confirm",
+    "viewProfile": "View Profile",
+    "perHour": "/hr",
+    "startingAt": "Starting at"
+  },
+  "nav": {
+    "findMentors": "Find Mentors",
+    "howItWorks": "How it Works",
+    "programs": "Programs",
+    "resources": "Resources",
+    "mySessions": "My Sessions",
+    "login": "Login",
+    "joinNow": "Join Now",
+    "signOut": "Sign Out",
+    "settings": "Settings"
+  },
+  "landing": {
+    "hero": {
+      "badge": "Now Launching: AI Career Pathways v2.0",
+      "title1": "Elevate Your",
+      "title2": "Tech Trajectory",
+      "subtitle": "Expert-led mentorship designed for the high-speed tech landscape. Unlock bespoke growth through targeted code reviews, architectural deep-dives, and strategic career coaching.",
+      "joinStudent": "Join as Student",
+      "joinMentor": "Join as Mentor",
+      "mentorsActive": "{{count}} Mentors Active Now"
+    },
+    "socialProof": {
+      "title": "Trusted by Mentors From"
+    },
+    "workspace": {
+      "title": "A Fluid Workspace for Growth",
+      "subtitle": "Everything you need to accelerate your learning journey",
+      "feature1Title": "Live Code Reviews",
+      "feature1Desc": "Get real-time feedback on your code from industry experts.",
+      "feature2Title": "Flexible Scheduling",
+      "feature2Desc": "Book sessions that fit your schedule with our smart calendar.",
+      "feature3Title": "Progress Tracking",
+      "feature3Desc": "Monitor your growth with detailed analytics and skill assessments."
+    },
+    "discovery": {
+      "title": "Discover Your Perfect Mentor",
+      "subtitle": "Browse our curated network of industry experts",
+      "browseMentors": "Browse Mentors"
+    },
+    "cta": {
+      "title": "Ready to Accelerate?",
+      "subtitle": "Join thousands of developers leveling up with expert mentors.",
+      "button": "Get Started Free"
+    }
+  },
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "selectPath": "Select your path",
+    "student": "Student",
+    "mentor": "Mentor",
+    "email": "Work Email",
+    "emailPlaceholder": "name@company.com",
+    "password": "Password",
+    "passwordPlaceholder": "••••••••",
+    "forgot": "Forgot?",
+    "fullName": "Full Name",
+    "namePlaceholder": "Jane Doe",
+    "professionalTitle": "Professional Title",
+    "titlePlaceholder": "e.g. Senior React Engineer",
+    "bio": "Bio",
+    "bioPlaceholder": "Tell students about your expertise...",
+    "techStack": "Tech Stack",
+    "selectStack": "Select a stack...",
+    "noStacks": "No stacks yet — ask an admin to add some.",
+    "signingIn": "Signing in...",
+    "continue": "Continue",
+    "creatingAccount": "Creating account...",
+    "ssoOr": "or access via SSO",
+    "orContinueWith": "or continue with",
+    "continueWithGitHub": "Continue with GitHub",
+    "continueWithGoogle": "Continue with Google",
+    "oauthRoleNote": "You'll be signed in as a Student. You can apply to become a mentor from your dashboard.",
+    "terms": "By continuing, you agree to ReviewSphere's",
+    "termsLink": "Terms of Service",
+    "and": "and",
+    "privacyLink": "Privacy Policy"
+  },
+  "mentor": {
+    "profile": {
+      "title": "Mentor Profile",
+      "skills": "Skills",
+      "primaryStack": "Primary Stack",
+      "about": "About",
+      "availability": "Availability",
+      "bookSession": "Book a Session",
+      "hourlyRate": "Hourly Rate",
+      "perHour": "/ hour",
+      "verified": "Verified Mentor",
+      "notFound": "Mentor not found",
+      "backToDiscovery": "Back to Mentor Discovery"
+    },
+    "availability": {
+      "chooseDate": "Choose Booking Date",
+      "selectDate": "Select a date",
+      "noSlots": "No available slots for this date",
+      "noSlotsHint": "Please select another date on the calendar.",
+      "book": "Book Slot"
+    },
+    "booking": {
+      "confirmTitle": "Confirm Booking",
+      "mentor": "Mentor:",
+      "date": "Date:",
+      "time": "Time:",
+      "confirm": "Confirm",
+      "booking": "Booking...",
+      "cancel": "Cancel",
+      "success": "Session booked successfully!",
+      "failed": "Failed to book session. Please try again.",
+      "slotTaken": "This slot has already been taken. Please choose another."
+    },
+    "discovery": {
+      "title": "Expert Mentors",
+      "showing": "Showing <strong>{{count}}</strong> available mentors tailored to your stack.",
+      "sortBy": "Sort by:",
+      "sortRelevant": "Most Relevant",
+      "sortRated": "Highest Rated",
+      "sortPrice": "Lowest Price",
+      "sortAvailable": "Available Now",
+      "filters": "Filters",
+      "availableNow": "Available now"
+    }
+  },
+  "filter": {
+    "title": "Filters",
+    "quickSearch": "Quick Search",
+    "searchPlaceholder": "Mentor name or keyword...",
+    "techStack": "Tech Stack",
+    "loadingStacks": "Loading stacks...",
+    "priceRange": "Price Range",
+    "availableNow": "Available Now",
+    "topRated": "Top Rated Only",
+    "verified": "Verified Identity",
+    "clearAll": "Clear All Filters"
+  },
+  "profile": {
+    "edit": {
+      "title": "Customize Profile",
+      "subtitle": "Update your account details and profile information.",
+      "name": "Full Name",
+      "bio": "Bio",
+      "bioPlaceholder": "Tell students about your background, experience, and mentoring style...",
+      "professionalTitle": "Professional Title",
+      "titlePlaceholder": "e.g. Senior Frontend Architect",
+      "hourlyRate": "Hourly Rate ($)",
+      "techStack": "Tech Stack",
+      "selectStack": "Select a stack...",
+      "save": "Save Changes",
+      "saving": "Saving...",
+      "saved": "Profile and availability settings updated successfully!",
+      "cancel": "Cancel",
+      "loginRequired": "You must be logged in to edit your profile.",
+      "nameRequired": "Name is required.",
+      "titleRequired": "Title is required.",
+      "bioMinLength": "Bio must be at least 10 characters.",
+      "rateNegative": "Hourly rate cannot be negative.",
+      "stackRequired": "Stack is required.",
+      "loadError": "Failed to load profile settings."
+    },
+    "availability": {
+      "title": "Weekly Availability Manager",
+      "description": "Configure weekly timeframes for student bookings.",
+      "day": "Day",
+      "startTime": "Start Time",
+      "endTime": "End Time",
+      "addRange": "Add Time Range",
+      "configuredSlots": "Configured Slots",
+      "noSlots": "No availability ranges configured yet.",
+      "slotAdded": "Availability block added to list!",
+      "overlapError": "This range overlaps with an existing availability slot.",
+      "durationError": "Slot duration must be at least 45 minutes.",
+      "timeOrderError": "Start time must be before end time.",
+      "days": {
+        "0": "Sunday",
+        "1": "Monday",
+        "2": "Tuesday",
+        "3": "Wednesday",
+        "4": "Thursday",
+        "5": "Friday",
+        "6": "Saturday"
+      }
+    }
+  },
+  "dashboard": {
+    "welcome": "Welcome back, {{name}}",
+    "upcomingCount_one": "You have {{count}} upcoming session this week.",
+    "upcomingCount_other": "You have {{count}} upcoming sessions this week.",
+    "portal": "Mentorship Portal",
+    "sidebar": {
+      "dashboard": "Dashboard",
+      "findMentors": "Find Mentors",
+      "messages": "Messages",
+      "sessions": "Sessions",
+      "payments": "Payments",
+      "settings": "Settings",
+      "helpCenter": "Help Center",
+      "logout": "Logout"
+    },
+    "stats": {
+      "hoursCompleted": "Hours Completed",
+      "skillsMastered": "Skills Mastered",
+      "avgRating": "Average Rating",
+      "pendingTasks": "Pending Tasks"
+    },
+    "upcoming": {
+      "title": "Upcoming Sessions",
+      "viewCalendar": "View Calendar",
+      "empty": "No upcoming sessions scheduled",
+      "findMentor": "Find a mentor",
+      "cancelSession": "Cancel Session",
+      "cancelConfirm": "Are you sure you want to cancel this session?",
+      "cancelSuccess": "Session canceled successfully",
+      "joinMeeting": "Join Meeting",
+      "today": "Today",
+      "tomorrow": "Tomorrow",
+      "mins": "mins"
+    },
+    "progress": {
+      "title": "Learning Progress",
+      "viewAll": "View All Skills"
+    },
+    "cta": {
+      "title": "Find New Mentors",
+      "subtitle": "Discover experts tailored to your learning goals and career path.",
+      "button": "Explore Catalog"
+    },
+    "history": {
+      "title": "Recent History",
+      "all": "All Sessions",
+      "completed": "Completed",
+      "canceled": "Canceled",
+      "empty": "No session history yet",
+      "mentor": "Mentor",
+      "date": "Date",
+      "evaluation": "Evaluation",
+      "status": "Status",
+      "action": "Action",
+      "viewNotes": "View Notes",
+      "hideNotes": "Hide Notes",
+      "yourRating": "Your rating:",
+      "editFeedback": "Edit Feedback",
+      "rateSession": "Rate this session",
+      "feedbackLabel": "Your feedback (optional)",
+      "feedbackPlaceholder": "Share your experience with this mentor...",
+      "submit": "Submit",
+      "feedbackSuccess": "Feedback submitted successfully",
+      "ratingRequired": "Please select a rating"
+    }
+  },
+  "notFound": {
+    "title": "Page Not Found",
+    "code": "404",
+    "message": "The page you're looking for doesn't exist or has been moved.",
+    "goHome": "Go to Homepage"
+  },
+  "error": {
+    "boundary": {
+      "title": "Something went wrong",
+      "message": "An unexpected error occurred. Please try refreshing the page.",
+      "refresh": "Refresh Page"
+    }
+  },
+  "footer": {
+    "tagline": "Empowering the next generation of technologists through world-class human mentorship.",
+    "platform": "Platform",
+    "aboutUs": "About Us",
+    "careers": "Careers",
+    "community": "Community",
+    "helpCenter": "Help Center",
+    "guidelines": "Guidelines",
+    "stories": "Stories",
+    "blog": "Blog",
+    "successStories": "Success Stories",
+    "legal": "Legal",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "copyright": "\u00a9 {{year}} ReviewSphere. All rights reserved."
+  }
+}

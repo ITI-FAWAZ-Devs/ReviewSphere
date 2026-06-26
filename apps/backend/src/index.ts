@@ -8,11 +8,14 @@ import authRoutes from './routes/auth.routes.js';
 import stackRoutes from './routes/stack.routes.js';
 import mentorRoutes from './routes/mentors.routes.js';
 import sessionRoutes from './routes/sessions.routes.js';
+import adminRoutes from './routes/admin.routes.js';
+import passport from './middleware/passport.js';
 
 const app = express();
 const PORT = process.env.PORT ?? 3001;
 
 app.use(helmet());
+app.use(passport.initialize());
 app.use(cors({ origin: process.env.CORS_ORIGIN ?? 'http://localhost:5173' }));
 app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 app.use(express.json());
@@ -25,6 +28,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/stacks', stackRoutes);
 app.use('/api/mentors', mentorRoutes);
 app.use('/api/sessions', sessionRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Global error handler — always returns JSON
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

@@ -1,4 +1,5 @@
 import { Search, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type { MentorFilters } from '@/hooks/useMentors';
 import { useStacks } from '@/hooks/useStacks';
 
@@ -18,7 +19,7 @@ interface ToggleRowProps {
 function ToggleRow({ id, label, checked, onChange }: ToggleRowProps) {
   return (
     <div className="flex items-center justify-between">
-      <label htmlFor={id} className="text-sm text-slate-300 cursor-pointer">
+      <label htmlFor={id} className="text-sm text-foreground cursor-pointer">
         {label}
       </label>
       <button
@@ -26,13 +27,13 @@ function ToggleRow({ id, label, checked, onChange }: ToggleRowProps) {
         role="switch"
         aria-checked={checked}
         onClick={() => onChange(!checked)}
-        className={`relative w-10 h-5 rounded-full transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${
-          checked ? 'bg-indigo-600' : 'bg-slate-700'
+        className={`relative w-10 h-5 rounded-full transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-rs-accent ${
+          checked ? 'bg-rs-accent' : 'bg-muted-foreground/30'
         }`}
       >
         <span
-          className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform duration-200 ${
-            checked ? 'translate-x-5' : 'translate-x-0'
+          className={`absolute top-0.5 left-0.5 rtl:left-auto rtl:right-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform duration-200 ${
+            checked ? 'translate-x-5 rtl:-translate-x-5' : 'translate-x-0'
           }`}
         />
       </button>
@@ -42,34 +43,34 @@ function ToggleRow({ id, label, checked, onChange }: ToggleRowProps) {
 
 export default function FilterBar({ filters, onFiltersChange, onReset }: FilterBarProps) {
   const { stacks, loading: stacksLoading } = useStacks();
-  
+  const { t } = useTranslation();
+
   const minPrice = filters.min_price ?? 0;
   const maxPrice = filters.max_price ?? 500;
 
   return (
-    <aside className="bg-slate-900 rounded-2xl border border-slate-800 shadow-sm p-5 flex flex-col gap-6 sticky top-6 self-start">
-      {/* ── Header ─────────────────────────────────────────────── */}
-      <h2 className="text-base font-bold text-slate-100">Filters</h2>
+    <aside className="bg-card rounded-2xl border border-border shadow-sm p-5 flex flex-col gap-6 sticky top-6 self-start">
+      <h2 className="text-base font-bold text-foreground">{t('filter.title')}</h2>
 
-      {/* ── Quick Search ───────────────────────────────────────── */}
+      {/* Quick Search */}
       <div>
-        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">
-          Quick Search
+        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+          {t('filter.quickSearch')}
         </p>
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+          <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
           <input
             id="filter-keyword"
             type="text"
             value={filters.keyword ?? ''}
             onChange={(e) => onFiltersChange({ keyword: e.target.value, page: 1 })}
-            placeholder="Mentor name or keyword…"
-            className="w-full pl-9 pr-3 py-2 text-sm border border-slate-700 rounded-lg bg-slate-950 placeholder-slate-500 text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
+            placeholder={t('filter.searchPlaceholder')}
+            className="w-full ps-9 pe-3 py-2 text-sm border border-border rounded-lg bg-background placeholder-muted-foreground text-foreground focus:outline-none focus:ring-2 focus:ring-rs-accent focus:border-transparent transition"
           />
           {filters.keyword && (
             <button
               onClick={() => onFiltersChange({ keyword: '', page: 1 })}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
+              className="absolute end-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
               aria-label="Clear search"
             >
               <X className="w-3.5 h-3.5" />
@@ -78,14 +79,14 @@ export default function FilterBar({ filters, onFiltersChange, onReset }: FilterB
         </div>
       </div>
 
-      {/* ── Tech Stack chips ───────────────────────────────────── */}
+      {/* Tech Stack chips */}
       <div>
-        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">
-          Tech Stack
+        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+          {t('filter.techStack')}
         </p>
         <div className="flex flex-wrap gap-2">
           {stacksLoading ? (
-            <div className="text-xs text-slate-500 animate-pulse">Loading stacks...</div>
+            <div className="text-xs text-muted-foreground animate-pulse">{t('filter.loadingStacks')}</div>
           ) : (
             stacks.map((s) => {
               const active = filters.stack === s.id;
@@ -93,13 +94,11 @@ export default function FilterBar({ filters, onFiltersChange, onReset }: FilterB
                 <button
                   key={s.id}
                   id={`filter-stack-${s.id}`}
-                  onClick={() =>
-                    onFiltersChange({ stack: active ? '' : s.id, page: 1 })
-                  }
-                  className={`px-3 py-1 text-xs font-medium rounded-full border transition-colors ${
+                  onClick={() => onFiltersChange({ stack: active ? '' : s.id, page: 1 })}
+                  className={`px-3 py-1 text-xs font-mono font-medium rounded-full border transition-colors ${
                     active
-                      ? 'bg-indigo-600 border-indigo-600 text-white'
-                      : 'bg-slate-950 border-slate-700 text-slate-300 hover:border-indigo-500 hover:text-indigo-400'
+                      ? 'bg-rs-accent border-rs-accent text-white'
+                      : 'bg-muted border-border text-foreground hover:border-rs-accent/50 hover:text-rs-accent'
                   }`}
                 >
                   {s.name}
@@ -110,77 +109,47 @@ export default function FilterBar({ filters, onFiltersChange, onReset }: FilterB
         </div>
       </div>
 
-      {/* ── Price Range ────────────────────────────────────────── */}
+      {/* Price Range */}
       <div>
         <div className="flex items-center justify-between mb-2">
-          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
-            Price Range
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+            {t('filter.priceRange')}
           </p>
-          <span className="text-xs font-semibold text-indigo-400">
+          <span className="text-xs font-semibold text-rs-accent">
             ${minPrice} – ${maxPrice === 500 ? '500+' : maxPrice}
           </span>
         </div>
-        {/* Min slider */}
-        <input
-          id="filter-min-price"
-          type="range"
-          min={0}
-          max={500}
-          step={10}
-          value={minPrice}
-          onChange={(e) =>
-            onFiltersChange({ min_price: Number(e.target.value), page: 1 })
-          }
-          className="w-full accent-indigo-500 mb-1 bg-slate-800"
+        <input id="filter-min-price" type="range" min={0} max={500} step={10} value={minPrice}
+          onChange={(e) => onFiltersChange({ min_price: Number(e.target.value), page: 1 })}
+          className="w-full accent-rs-accent mb-1 bg-muted"
         />
-        {/* Max slider */}
-        <input
-          id="filter-max-price"
-          type="range"
-          min={0}
-          max={500}
-          step={10}
-          value={maxPrice}
-          onChange={(e) =>
-            onFiltersChange({ max_price: Number(e.target.value), page: 1 })
-          }
-          className="w-full accent-indigo-500 bg-slate-800"
+        <input id="filter-max-price" type="range" min={0} max={500} step={10} value={maxPrice}
+          onChange={(e) => onFiltersChange({ max_price: Number(e.target.value), page: 1 })}
+          className="w-full accent-rs-accent bg-muted"
         />
-        <div className="flex justify-between text-xs text-slate-500 mt-1">
+        <div className="flex justify-between text-xs text-muted-foreground mt-1">
           <span>$0</span>
           <span>$500+</span>
         </div>
       </div>
 
-      {/* ── Toggles ────────────────────────────────────────────── */}
+      {/* Toggles */}
       <div className="flex flex-col gap-3">
-        <ToggleRow
-          id="filter-available"
-          label="Available Now"
-          checked={filters.available ?? false}
-          onChange={(v) => onFiltersChange({ available: v, page: 1 })}
-        />
-        <ToggleRow
-          id="filter-top-rated"
-          label="Top Rated Only"
-          checked={filters.top_rated ?? false}
-          onChange={(v) => onFiltersChange({ top_rated: v, page: 1 })}
-        />
-        <ToggleRow
-          id="filter-verified"
-          label="Verified Identity"
-          checked={filters.verified ?? false}
-          onChange={(v) => onFiltersChange({ verified: v, page: 1 })}
-        />
+        <ToggleRow id="filter-available" label={t('filter.availableNow')} checked={filters.available ?? false}
+          onChange={(v) => onFiltersChange({ available: v, page: 1 })} />
+        <ToggleRow id="filter-top-rated" label={t('filter.topRated')} checked={filters.top_rated ?? false}
+          onChange={(v) => onFiltersChange({ top_rated: v, page: 1 })} />
+        <ToggleRow id="filter-verified" label={t('filter.verified')} checked={filters.verified ?? false}
+          onChange={(v) => onFiltersChange({ verified: v, page: 1 })} />
       </div>
 
-      {/* ── Clear All ──────────────────────────────────────────── */}
+      {/* Clear All */}
       <button
         id="filter-clear-all"
         onClick={onReset}
-        className="w-full py-2 text-sm font-medium text-slate-300 border border-slate-700 bg-slate-800/50 rounded-lg hover:bg-slate-800 hover:border-slate-600 hover:text-slate-200 transition-colors"
+        className="w-full py-2 text-sm font-medium text-muted-foreground border border-border bg-muted rounded-lg hover:bg-secondary hover:text-foreground transition-colors"
       >
-        Clear All Filters
+        {t('filter.clearAll')}
       </button>
     </aside>
   );

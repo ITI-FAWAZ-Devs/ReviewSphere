@@ -47,7 +47,7 @@ export default function Pagination({ currentPage, totalPages }: PaginationProps)
         id="pagination-prev"
         onClick={() => goTo(currentPage - 1)}
         disabled={currentPage === 1}
-        className="w-9 h-9 flex items-center justify-center rounded-lg border border-slate-800 bg-slate-900 text-slate-400 hover:border-indigo-500 hover:text-indigo-400 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+        className="w-9 h-9 flex items-center justify-center rounded-lg border border-border bg-card text-muted-foreground hover:border-rs-accent hover:text-rs-accent disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         aria-label="Previous page"
       >
         <ChevronLeft className="w-4 h-4" />
@@ -56,7 +56,7 @@ export default function Pagination({ currentPage, totalPages }: PaginationProps)
       {/* Page numbers */}
       {pages.map((p, idx) =>
         p === '...' ? (
-          <span key={`ellipsis-${idx}`} className="w-9 h-9 flex items-center justify-center text-slate-500 text-sm">
+          <span key={`ellipsis-${idx}`} className="w-9 h-9 flex items-center justify-center text-muted-foreground text-sm font-mono">
             …
           </span>
         ) : (
@@ -65,10 +65,10 @@ export default function Pagination({ currentPage, totalPages }: PaginationProps)
             id={`pagination-page-${p}`}
             onClick={() => goTo(p)}
             aria-current={p === currentPage ? 'page' : undefined}
-            className={`w-9 h-9 flex items-center justify-center rounded-lg text-sm font-medium transition-colors ${
+            className={`w-9 h-9 flex items-center justify-center rounded-lg text-sm font-semibold font-mono transition-colors ${
               p === currentPage
-                ? 'bg-indigo-600 text-white shadow-sm border border-indigo-500'
-                : 'bg-slate-900 border border-slate-800 text-slate-300 hover:border-indigo-500 hover:text-indigo-400'
+                ? 'bg-rs-accent text-white shadow-sm border border-rs-accent-hover'
+                : 'bg-card border border-border text-foreground hover:border-rs-accent hover:text-rs-accent'
             }`}
           >
             {p}
@@ -81,7 +81,7 @@ export default function Pagination({ currentPage, totalPages }: PaginationProps)
         id="pagination-next"
         onClick={() => goTo(currentPage + 1)}
         disabled={currentPage === totalPages}
-        className="w-9 h-9 flex items-center justify-center rounded-lg border border-slate-800 bg-slate-900 text-slate-400 hover:border-indigo-500 hover:text-indigo-400 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+        className="w-9 h-9 flex items-center justify-center rounded-lg border border-border bg-card text-muted-foreground hover:border-rs-accent hover:text-rs-accent disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         aria-label="Next page"
       >
         <ChevronRight className="w-4 h-4" />

@@ -19,8 +19,9 @@ export function useStacks() {
         setError(null);
         const { data } = await axios.get<Stack[]>('/stacks');
         setStacks(data);
-      } catch (err: any) {
-        setError(err.response?.data?.message || err.message || 'Failed to load stacks');
+      } catch (err) {
+        const error = err as { response?: { data?: { message?: string } }; message?: string };
+        setError(error.response?.data?.message || error.message || 'Failed to load stacks');
       } finally {
         setLoading(false);
       }

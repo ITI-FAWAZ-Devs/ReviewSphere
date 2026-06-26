@@ -27,17 +27,17 @@ const MENTORS = [
 /* ── Mentor Chip ────────────────────────────────────────────── */
 function MentorChip({ name, specialty, avatar }: (typeof MENTORS)[number]) {
   return (
-    <div className="glass-card flex items-center gap-3 p-3 rounded-full px-5 shrink-0">
+    <div className="bg-card border border-border flex items-center gap-3 p-3 rounded-full px-5 shrink-0 shadow-sm">
       <img
-        className="w-10 h-10 rounded-full object-cover border border-landing-primary/30"
+        className="w-10 h-10 rounded-full object-cover border border-rs-accent/30"
         alt={name}
         src={avatar}
       />
       <div>
-        <p className="text-sm font-medium text-on-background dark:text-inverse-on-surface leading-tight">
+        <p className="text-sm font-bold text-foreground leading-tight">
           {name}
         </p>
-        <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-primary-fixed-dim border-0 uppercase tracking-widest">
+        <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-rs-accent border-0 uppercase tracking-widest font-semibold font-mono">
           {specialty}
         </Badge>
       </div>
@@ -48,7 +48,7 @@ function MentorChip({ name, specialty, avatar }: (typeof MENTORS)[number]) {
 /* ── Section ────────────────────────────────────────────────── */
 export function MentorSocialProofTrack() {
   return (
-    <section className="py-8 overflow-hidden bg-surface-container-low dark:bg-inverse-surface/30">
+    <section className="py-8 overflow-hidden bg-muted/40 border-y border-border">
       <div className="animate-scroll gap-6 px-6">
         <div className="flex gap-6">
           {/* Duplicate to create infinite scroll effect */}

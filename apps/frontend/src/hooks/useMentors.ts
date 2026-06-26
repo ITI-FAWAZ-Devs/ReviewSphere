@@ -121,7 +121,6 @@ export function useMentors(filters: MentorFilters) {
     } finally {
       setLoading(false);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     filters.stack,
     filters.sort_by,
@@ -135,6 +134,7 @@ export function useMentors(filters: MentorFilters) {
   ]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchMentors();
     return () => abortRef.current?.abort();
   }, [fetchMentors]);

@@ -1,0 +1,297 @@
+{
+  "common": {
+    "appName": "ريفيو سفير",
+    "loading": "جارٍ التحميل...",
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "back": "رجوع",
+    "search": "بحث",
+    "noResults": "لا توجد نتائج",
+    "error": "حدث خطأ ما",
+    "retry": "حاول مرة أخرى",
+    "confirm": "تأكيد",
+    "viewProfile": "عرض الملف الشخصي",
+    "perHour": "/ساعة",
+    "startingAt": "يبدأ من"
+  },
+  "nav": {
+    "findMentors": "ابحث عن مرشد",
+    "howItWorks": "كيف يعمل",
+    "programs": "البرامج",
+    "resources": "الموارد",
+    "mySessions": "جلساتي",
+    "login": "تسجيل الدخول",
+    "joinNow": "انضم الآن",
+    "signOut": "تسجيل الخروج",
+    "settings": "الإعدادات"
+  },
+  "landing": {
+    "hero": {
+      "badge": "إطلاق جديد: مسارات الذكاء الاصطناعي المهنية v2.0",
+      "title1": "ارتقِ بمسارك",
+      "title2": "التقني",
+      "subtitle": "إرشاد متخصص من خبراء لمواكبة عالم التكنولوجيا السريع. أطلق العنان لنموك من خلال مراجعات الكود المستهدفة والتعمق في البنية البرمجية والتوجيه المهني الاستراتيجي.",
+      "joinStudent": "انضم كطالب",
+      "joinMentor": "انضم كمرشد",
+      "mentorsActive": "{{count}} مرشد نشط الآن"
+    },
+    "socialProof": {
+      "title": "موثوق من مرشدين في"
+    },
+    "workspace": {
+      "title": "مساحة عمل مرنة للنمو",
+      "subtitle": "كل ما تحتاجه لتسريع رحلة التعلم الخاصة بك",
+      "feature1Title": "مراجعات كود مباشرة",
+      "feature1Desc": "احصل على ملاحظات فورية على الكود الخاص بك من خبراء الصناعة.",
+      "feature2Title": "جدولة مرنة",
+      "feature2Desc": "احجز جلسات تناسب جدولك الزمني مع تقويمنا الذكي.",
+      "feature3Title": "تتبع التقدم",
+      "feature3Desc": "تابع نموك من خلال تحليلات مفصلة وتقييمات المهارات."
+    },
+    "discovery": {
+      "title": "اكتشف مرشدك المثالي",
+      "subtitle": "تصفح شبكتنا المختارة من خبراء الصناعة",
+      "browseMentors": "تصفح المرشدين"
+    },
+    "cta": {
+      "title": "هل أنت مستعد للتسريع؟",
+      "subtitle": "انضم إلى آلاف المطورين الذين يرتقون بمهاراتهم مع مرشدين خبراء.",
+      "button": "ابدأ مجانًا"
+    }
+  },
+  "auth": {
+    "login": "تسجيل الدخول",
+    "register": "إنشاء حساب",
+    "selectPath": "اختر مسارك",
+    "student": "طالب",
+    "mentor": "مرشد",
+    "email": "البريد الإلكتروني",
+    "emailPlaceholder": "name@company.com",
+    "password": "كلمة المرور",
+    "passwordPlaceholder": "••••••••",
+    "forgot": "نسيت؟",
+    "fullName": "الاسم الكامل",
+    "namePlaceholder": "أحمد محمد",
+    "professionalTitle": "المسمى المهني",
+    "titlePlaceholder": "مثال: مهندس React أول",
+    "bio": "نبذة شخصية",
+    "bioPlaceholder": "أخبر الطلاب عن خبرتك...",
+    "techStack": "التقنيات",
+    "selectStack": "اختر تقنية...",
+    "noStacks": "لا توجد تقنيات بعد — اطلب من المسؤول إضافة بعضها.",
+    "signingIn": "جارٍ تسجيل الدخول...",
+    "continue": "متابعة",
+    "creatingAccount": "جارٍ إنشاء الحساب...",
+    "ssoOr": "أو الوصول عبر SSO",
+    "orContinueWith": "أو المتابعة باستخدام",
+    "continueWithGitHub": "المتابعة باستخدام GitHub",
+    "continueWithGoogle": "المتابعة باستخدام Google",
+    "oauthRoleNote": "سيتم تسجيل دخولك كطالب. يمكنك تقديم طلب لتصبح مرشدًا من لوحة التحكم الخاصة بك.",
+    "terms": "بالمتابعة، أنت توافق على",
+    "termsLink": "شروط الخدمة",
+    "and": "و",
+    "privacyLink": "سياسة الخصوصية"
+  },
+  "mentor": {
+    "profile": {
+      "title": "ملف المرشد",
+      "skills": "المهارات",
+      "primaryStack": "التقنية الأساسية",
+      "about": "نبذة",
+      "availability": "المواعيد المتاحة",
+      "bookSession": "احجز جلسة",
+      "hourlyRate": "السعر بالساعة",
+      "perHour": "/ ساعة",
+      "verified": "مرشد موثق",
+      "notFound": "المرشد غير موجود",
+      "backToDiscovery": "العودة إلى البحث عن مرشد"
+    },
+    "availability": {
+      "chooseDate": "اختر تاريخ الحجز",
+      "selectDate": "اختر تاريخًا",
+      "noSlots": "لا توجد مواعيد متاحة لهذا التاريخ",
+      "noSlotsHint": "يرجى اختيار تاريخ آخر من التقويم.",
+      "book": "احجز الموعد"
+    },
+    "booking": {
+      "confirmTitle": "تأكيد الحجز",
+      "mentor": "المرشد:",
+      "date": "التاريخ:",
+      "time": "الوقت:",
+      "confirm": "تأكيد",
+      "booking": "جارٍ الحجز...",
+      "cancel": "إلغاء",
+      "success": "تم حجز الجلسة بنجاح!",
+      "failed": "فشل حجز الجلسة. يرجى المحاولة مرة أخرى.",
+      "slotTaken": "هذا الموعد محجوز بالفعل. يرجى اختيار موعد آخر."
+    },
+    "discovery": {
+      "title": "المرشدون الخبراء",
+      "showing": "عرض <strong>{{count}}</strong> مرشد متاح مخصص لتقنيتك.",
+      "sortBy": "ترتيب حسب:",
+      "sortRelevant": "الأكثر صلة",
+      "sortRated": "الأعلى تقييمًا",
+      "sortPrice": "الأقل سعرًا",
+      "sortAvailable": "المتاح الآن",
+      "filters": "التصفية",
+      "availableNow": "متاح الآن"
+    }
+  },
+  "filter": {
+    "title": "التصفية",
+    "quickSearch": "بحث سريع",
+    "searchPlaceholder": "اسم المرشد أو كلمة مفتاحية...",
+    "techStack": "التقنيات",
+    "loadingStacks": "جارٍ تحميل التقنيات...",
+    "priceRange": "نطاق السعر",
+    "availableNow": "متاح الآن",
+    "topRated": "الأعلى تقييمًا فقط",
+    "verified": "هوية موثقة",
+    "clearAll": "مسح جميع الفلاتر"
+  },
+  "profile": {
+    "edit": {
+      "title": "تخصيص الملف الشخصي",
+      "subtitle": "قم بتحديث تفاصيل حسابك ومعلومات ملفك الشخصي.",
+      "name": "الاسم الكامل",
+      "bio": "نبذة شخصية",
+      "bioPlaceholder": "أخبر الطلاب عن خلفيتك وخبرتك وأسلوب التوجيه...",
+      "professionalTitle": "المسمى المهني",
+      "titlePlaceholder": "مثال: مهندس واجهات أمامية أول",
+      "hourlyRate": "السعر بالساعة ($)",
+      "techStack": "التقنيات",
+      "selectStack": "اختر تقنية...",
+      "save": "حفظ التغييرات",
+      "saving": "جارٍ الحفظ...",
+      "saved": "تم تحديث الملف الشخصي وإعدادات المواعيد بنجاح!",
+      "cancel": "إلغاء",
+      "loginRequired": "يجب تسجيل الدخول لتعديل ملفك الشخصي.",
+      "nameRequired": "الاسم مطلوب.",
+      "titleRequired": "المسمى المهني مطلوب.",
+      "bioMinLength": "يجب أن تكون النبذة 10 أحرف على الأقل.",
+      "rateNegative": "السعر بالساعة لا يمكن أن يكون سالبًا.",
+      "stackRequired": "التقنية مطلوبة.",
+      "loadError": "فشل تحميل إعدادات الملف الشخصي."
+    },
+    "availability": {
+      "title": "مدير المواعيد الأسبوعية",
+      "description": "قم بتكوين الأوقات الأسبوعية لحجوزات الطلاب.",
+      "day": "اليوم",
+      "startTime": "وقت البدء",
+      "endTime": "وقت الانتهاء",
+      "addRange": "إضافة نطاق زمني",
+      "configuredSlots": "المواعيد المُعدة",
+      "noSlots": "لم يتم تكوين أي مواعيد بعد.",
+      "slotAdded": "تمت إضافة الموعد إلى القائمة!",
+      "overlapError": "هذا النطاق يتداخل مع موعد موجود.",
+      "durationError": "مدة الموعد يجب أن تكون 45 دقيقة على الأقل.",
+      "timeOrderError": "وقت البدء يجب أن يكون قبل وقت الانتهاء.",
+      "days": {
+        "0": "الأحد",
+        "1": "الاثنين",
+        "2": "الثلاثاء",
+        "3": "الأربعاء",
+        "4": "الخميس",
+        "5": "الجمعة",
+        "6": "السبت"
+      }
+    }
+  },
+  "dashboard": {
+    "welcome": "مرحبًا بعودتك، {{name}}",
+    "upcomingCount_one": "لديك <strong>{{count}}</strong> جلسة قادمة هذا الأسبوع.",
+    "upcomingCount_other": "لديك <strong>{{count}}</strong> جلسات قادمة هذا الأسبوع.",
+    "portal": "بوابة الإرشاد",
+    "sidebar": {
+      "dashboard": "لوحة التحكم",
+      "findMentors": "ابحث عن مرشد",
+      "messages": "الرسائل",
+      "sessions": "الجلسات",
+      "payments": "المدفوعات",
+      "settings": "الإعدادات",
+      "helpCenter": "مركز المساعدة",
+      "logout": "تسجيل الخروج"
+    },
+    "stats": {
+      "hoursCompleted": "ساعات مكتملة",
+      "skillsMastered": "مهارات متقنة",
+      "avgRating": "متوسط التقييم",
+      "pendingTasks": "مهام معلقة"
+    },
+    "upcoming": {
+      "title": "الجلسات القادمة",
+      "viewCalendar": "عرض التقويم",
+      "empty": "لا توجد جلسات قادمة مجدولة",
+      "findMentor": "ابحث عن مرشد",
+      "cancelSession": "إلغاء الجلسة",
+      "cancelConfirm": "هل أنت متأكد أنك تريد إلغاء هذه الجلسة؟",
+      "cancelSuccess": "تم إلغاء الجلسة بنجاح",
+      "joinMeeting": "انضم للاجتماع",
+      "today": "اليوم",
+      "tomorrow": "غدًا",
+      "mins": "دقيقة"
+    },
+    "progress": {
+      "title": "تقدم التعلم",
+      "viewAll": "عرض جميع المهارات"
+    },
+    "cta": {
+      "title": "ابحث عن مرشدين جدد",
+      "subtitle": "اكتشف خبراء مخصصين لأهدافك التعليمية ومسارك المهني.",
+      "button": "استكشف الكتالوج"
+    },
+    "history": {
+      "title": "السجل الأخير",
+      "all": "جميع الجلسات",
+      "completed": "مكتملة",
+      "canceled": "ملغاة",
+      "empty": "لا يوجد سجل جلسات بعد",
+      "mentor": "المرشد",
+      "date": "التاريخ",
+      "evaluation": "التقييم",
+      "status": "الحالة",
+      "action": "الإجراء",
+      "viewNotes": "عرض الملاحظات",
+      "hideNotes": "إخفاء الملاحظات",
+      "yourRating": "تقييمك:",
+      "editFeedback": "تعديل التقييم",
+      "rateSession": "قيّم هذه الجلسة",
+      "feedbackLabel": "ملاحظاتك (اختياري)",
+      "feedbackPlaceholder": "شارك تجربتك مع هذا المرشد...",
+      "submit": "إرسال",
+      "feedbackSuccess": "تم إرسال التقييم بنجاح",
+      "ratingRequired": "يرجى اختيار تقييم"
+    }
+  },
+  "notFound": {
+    "title": "الصفحة غير موجودة",
+    "code": "404",
+    "message": "الصفحة التي تبحث عنها غير موجودة أو تم نقلها.",
+    "goHome": "العودة للرئيسية"
+  },
+  "error": {
+    "boundary": {
+      "title": "حدث خطأ ما",
+      "message": "حدث خطأ غير متوقع. يرجى تحديث الصفحة.",
+      "refresh": "تحديث الصفحة"
+    }
+  },
+  "footer": {
+    "tagline": "تمكين الجيل القادم من التقنيين من خلال إرشاد بشري عالمي المستوى.",
+    "platform": "المنصة",
+    "aboutUs": "من نحن",
+    "careers": "الوظائف",
+    "community": "المجتمع",
+    "helpCenter": "مركز المساعدة",
+    "guidelines": "الإرشادات",
+    "stories": "القصص",
+    "blog": "المدونة",
+    "successStories": "قصص النجاح",
+    "legal": "قانوني",
+    "privacy": "سياسة الخصوصية",
+    "terms": "شروط الخدمة",
+    "copyright": "© {{year}} ريفيو سفير. جميع الحقوق محفوظة."
+  }
+}

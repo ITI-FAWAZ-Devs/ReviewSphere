@@ -21,8 +21,11 @@ enum Role {
 model User {
   id             String          @id @default(cuid())
   email          String          @unique
-  password       String
+  password       String?
   role           Role            @default(STUDENT)
+  status         String          @default("ACTIVE")
+  oauthProvider  String?         @map("oauth_provider")
+  oauthId        String?         @map("oauth_id")
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
   studentProfile StudentProfile?
@@ -91,9 +94,20 @@ model ReviewSession {
   endsAt    DateTime
   rating    Float?
   feedback  String?
+  evaluationNotes String? @map("evaluation_notes")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   mentor  MentorProfile  @relation(fields: [mentorId], references: [id], onDelete: Cascade)
   student StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
 }
+
+model SessionAuditLog {
+  id          String   @id @default(cuid())
+  sessionId   String   @map("session_id")
+  action      String   // e.g., "BOOKED", "STATUS_UPDATED", "CANCELLED", etc.
+  payload     Json
+  performedBy String   @map("performed_by") // User ID who performed action
+  createdAt   DateTime @default(now())      @map("created_at")
+}
+
