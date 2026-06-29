@@ -89,6 +89,14 @@ function App() {
               }
             />
             <Route
+              path="/dashboard/student/sessions"
+              element={
+                <ProtectedRoute roles={['STUDENT']}>
+                  <StudentDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/dashboard/mentor"
               element={
                 <ProtectedRoute roles={['MENTOR']}>

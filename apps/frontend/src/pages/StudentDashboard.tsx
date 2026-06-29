@@ -61,6 +61,8 @@ export default function StudentDashboard() {
   const { t } = useTranslation();
   const location = useLocation();
 
+  const isSessionsPage = location.pathname === '/dashboard/student/sessions';
+
   const { data: apiSessions = [], isLoading, error } = useUserSessions();
   const updateStatusMutation = useUpdateSessionStatus();
   const submitFeedbackMutation = useSubmitFeedback();
@@ -82,7 +84,7 @@ export default function StudentDashboard() {
   const SIDEBAR_LINKS = useMemo(() => [
     { to: '/dashboard/student', label: t('dashboard.sidebar.dashboard'), icon: LayoutDashboard },
     { to: '/mentors', label: t('dashboard.sidebar.findMentors'), icon: Search },
-    { to: '/dashboard/student', label: t('dashboard.sidebar.sessions'), icon: Video },
+    { to: '/dashboard/student/sessions', label: t('dashboard.sidebar.sessions'), icon: Video },
     { to: '/profile/edit', label: t('dashboard.sidebar.settings'), icon: Settings },
   ], [t]);
 
@@ -240,7 +242,7 @@ export default function StudentDashboard() {
         <aside className="hidden lg:flex w-64 flex-shrink-0 flex-col border-e border-border bg-card/60 backdrop-blur-3xl min-h-screen sticky top-0">
           <div className="px-6 pt-8 pb-6">
             <p className="text-xl font-extrabold text-foreground tracking-tight flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-rs-accent" /> {t('common.appName')}
+              {t('common.appName')}
             </p>
             <p className="text-xs font-semibold text-muted-foreground mt-1 uppercase tracking-widest">{t('dashboard.portal')}</p>
           </div>
@@ -286,10 +288,10 @@ export default function StudentDashboard() {
             <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:30px_30px] pointer-events-none" />
             <div className="relative z-10">
               <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-foreground">
-                {t('dashboard.welcome', { name: firstName })}
+                {isSessionsPage ? t('dashboard.sidebar.sessions') : t('dashboard.welcome', { name: firstName })}
               </h1>
               <p className="text-base text-muted-foreground mt-2 font-medium">
-                {t('dashboard.upcomingCount', { count: upcomingSessions.length })}
+                {isSessionsPage ? 'Manage all your booked sessions and history.' : t('dashboard.upcomingCount', { count: upcomingSessions.length })}
               </p>
             </div>
 
@@ -315,12 +317,12 @@ export default function StudentDashboard() {
             )}
 
             {/* Stat cards */}
-            <DashboardStats stats={stats} />
+            {!isSessionsPage && <DashboardStats stats={stats} />}
 
             {/* Sessions + sidebar widgets */}
-            <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+            <div className={isSessionsPage ? "space-y-8" : "grid grid-cols-1 xl:grid-cols-3 gap-8"}>
               {/* Upcoming sessions */}
-              <div className="xl:col-span-2">
+              <div className={isSessionsPage ? "" : "xl:col-span-2"}>
                 <UpcomingSessions
                   sessions={upcomingSessions}
                   onCancel={handleCancelSession}
@@ -334,35 +336,37 @@ export default function StudentDashboard() {
               </div>
 
               {/* Right widgets */}
-              <aside className="space-y-6">
-                {/* Learning progress */}
-                <div className="bg-card/60 backdrop-blur-xl border border-border rounded-3xl p-6 shadow-sm relative overflow-hidden">
-                  <div className="absolute top-0 right-0 p-32 bg-rs-accent/5 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none" />
-                  <h3 className="text-lg font-bold text-foreground mb-6 relative z-10">{t('dashboard.progress.title')}</h3>
-                  <div className="space-y-5 relative z-10">
-                    {skillProgress.map(({ name, percent }) => (
-                      <div key={name} className="group">
-                        <div className="flex items-center justify-between text-sm mb-2">
-                          <span className="text-foreground font-bold tracking-tight">{name}</span>
-                          <span className="text-rs-accent font-bold">{percent}%</span>
+              {!isSessionsPage && (
+                <aside className="space-y-6">
+                  {/* Learning progress */}
+                  <div className="bg-card/60 backdrop-blur-xl border border-border rounded-3xl p-6 shadow-sm relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-32 bg-rs-accent/5 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none" />
+                    <h3 className="text-lg font-bold text-foreground mb-6 relative z-10">{t('dashboard.progress.title')}</h3>
+                    <div className="space-y-5 relative z-10">
+                      {skillProgress.map(({ name, percent }) => (
+                        <div key={name} className="group">
+                          <div className="flex items-center justify-between text-sm mb-2">
+                            <span className="text-foreground font-bold tracking-tight">{name}</span>
+                            <span className="text-rs-accent font-bold">{percent}%</span>
+                          </div>
+                          <div className="h-2.5 rounded-full bg-muted overflow-hidden shadow-inner">
+                            <div
+                              className="h-full rounded-full bg-gradient-to-r from-rs-accent to-rs-accent-hover transition-all duration-500 ease-out group-hover:scale-y-110"
+                              style={{ width: `${percent}%` }}
+                            />
+                          </div>
                         </div>
-                        <div className="h-2.5 rounded-full bg-muted overflow-hidden shadow-inner">
-                          <div
-                            className="h-full rounded-full bg-gradient-to-r from-rs-accent to-rs-accent-hover transition-all duration-500 ease-out group-hover:scale-y-110"
-                            style={{ width: `${percent}%` }}
-                          />
-                        </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
+                    <button
+                      type="button"
+                      className="w-full mt-8 py-3 text-sm font-bold rounded-xl bg-muted/50 border border-border text-foreground hover:bg-muted hover:border-rs-accent/30 transition-all relative z-10"
+                    >
+                      {t('dashboard.progress.viewAll')}
+                    </button>
                   </div>
-                  <button
-                    type="button"
-                    className="w-full mt-8 py-3 text-sm font-bold rounded-xl bg-muted/50 border border-border text-foreground hover:bg-muted hover:border-rs-accent/30 transition-all relative z-10"
-                  >
-                    {t('dashboard.progress.viewAll')}
-                  </button>
-                </div>
-              </aside>
+                </aside>
+              )}
             </div>
 
             {/* Recent history table */}
