@@ -12,6 +12,7 @@ interface Session {
   endsAt: string;
   rating?: number | null;
   feedback?: string | null;
+  meetLink?: string | null;
   mentorName: string;
   mentorAvatar?: string;
   title: string;
@@ -22,9 +23,16 @@ interface Session {
 interface UpcomingSessionsProps {
   sessions: Session[];
   onCancel: (id: string) => Promise<void>;
+  onFetchMeetLink?: (id: string) => Promise<string | null>;
+  fetchingMeetLinkId?: string | null;
 }
 
-export default function UpcomingSessions({ sessions, onCancel }: UpcomingSessionsProps) {
+export default function UpcomingSessions({
+  sessions,
+  onCancel,
+  onFetchMeetLink,
+  fetchingMeetLinkId,
+}: UpcomingSessionsProps) {
   const { t, i18n } = useTranslation();
 
   const isSameDay = (a: Date, b: Date) => {
@@ -127,15 +135,37 @@ export default function UpcomingSessions({ sessions, onCancel }: UpcomingSession
                     >
                       {t('dashboard.upcoming.cancelSession')}
                     </button>
-                    {isPrimary && (
-                      <button
-                        type="button"
-                        disabled
-                        className="px-4 py-2 text-sm font-semibold rounded-[10px] bg-rs-accent hover:bg-rs-accent-hover text-white disabled:opacity-50 transition-colors flex items-center gap-1.5"
+                    {session.meetLink ? (
+                      <a
+                        href={session.meetLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-4 py-2 text-sm font-semibold rounded-[10px] bg-rs-accent hover:bg-rs-accent-hover text-white transition-colors flex items-center gap-1.5"
                       >
                         <Video className="w-4 h-4" />
                         {t('dashboard.upcoming.joinMeeting')}
+                      </a>
+                    ) : onFetchMeetLink ? (
+                      <button
+                        type="button"
+                        onClick={() => onFetchMeetLink(session.id)}
+                        disabled={fetchingMeetLinkId === session.id}
+                        className="px-4 py-2 text-sm font-semibold rounded-[10px] bg-rs-accent/80 hover:bg-rs-accent text-white transition-colors flex items-center gap-1.5 disabled:opacity-60"
+                        title={t('dashboard.upcoming.meetLinkPending')}
+                      >
+                        <Video className="w-4 h-4" />
+                        {fetchingMeetLinkId === session.id
+                          ? t('dashboard.upcoming.fetchingMeetLink')
+                          : t('dashboard.upcoming.getMeetLink')}
                       </button>
+                    ) : (
+                      <span
+                        className="px-4 py-2 text-sm font-semibold rounded-[10px] bg-rs-accent/50 text-white/70 flex items-center gap-1.5 cursor-not-allowed"
+                        title={t('dashboard.upcoming.meetLinkPending')}
+                      >
+                        <Video className="w-4 h-4" />
+                        {t('dashboard.upcoming.joinMeeting')}
+                      </span>
                     )}
                   </div>
                 </div>

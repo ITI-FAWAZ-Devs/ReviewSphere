@@ -7,6 +7,11 @@ import { toast } from '@/lib/toast';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import BookingModal from '@/components/BookingModal';
+import BookingSuccessModal from '@/components/BookingSuccessModal';
+
+interface BookedSession {
+  meetLink?: string | null;
+}
 
 interface Stack {
   id: string;
@@ -75,6 +80,10 @@ export default function MentorProfilePage() {
   const [loadingSlots, setLoadingSlots] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null);
   const [booking, setBooking] = useState(false);
+  const [bookedSession, setBookedSession] = useState<{
+    meetLink?: string | null;
+    slot: Slot;
+  } | null>(null);
 
   // Fetch Mentor details
   useEffect(() => {
@@ -114,18 +123,18 @@ export default function MentorProfilePage() {
     if (!selectedSlot || !mentor) return;
     setBooking(true);
     try {
-      await apiClient.post('/sessions/book', {
+      const res = await apiClient.post<BookedSession>('/sessions/book', {
         mentor_id: mentor.id,
         start_time: `${date}T${selectedSlot.start_time}:00Z`,
         end_time: `${date}T${selectedSlot.end_time}:00Z`,
         description: '',
       });
-      toast.success(t('mentor.booking.success'));
       setSlots((prev) =>
         prev.filter(
           (s) => s.start_time !== selectedSlot.start_time || s.end_time !== selectedSlot.end_time
         )
       );
+      setBookedSession({ meetLink: res.data.meetLink, slot: selectedSlot });
       setSelectedSlot(null);
     } catch (err) {
       const error = err as { response?: { status?: number; data?: { message?: string } } };
@@ -321,6 +330,17 @@ export default function MentorProfilePage() {
           booking={booking}
           onConfirm={confirmBooking}
           onCancel={() => !booking && setSelectedSlot(null)}
+        />
+      )}
+
+      {bookedSession && mentor && (
+        <BookingSuccessModal
+          mentorName={mentor.name}
+          date={date}
+          startTime={bookedSession.slot.start_time}
+          endTime={bookedSession.slot.end_time}
+          meetLink={bookedSession.meetLink}
+          onClose={() => setBookedSession(null)}
         />
       )}
     </>

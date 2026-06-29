@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { toast } from '@/lib/toast';
 import { useAuth } from '@/context/AuthContext';
-import { useUserSessions, useUpdateSessionStatus, useSubmitFeedback } from '@/hooks/useSessions';
+import { useUserSessions, useUpdateSessionStatus, useSubmitFeedback, useSessionMeetLink } from '@/hooks/useSessions';
 
 import DashboardStats from '@/components/dashboard/DashboardStats';
 import UpcomingSessions from '@/components/dashboard/UpcomingSessions';
@@ -38,6 +38,7 @@ interface ApiSession {
   rating?: number | null;
   feedback?: string | null;
   evaluationNotes?: string | null;
+  meetLink?: string | null;
   mentor: MentorInfo;
 }
 
@@ -47,6 +48,7 @@ interface Session extends ApiSession {
   title: string;
   startTime: string;
   duration: number;
+  meetLink?: string | null;
 }
 
 interface FeedbackForm {
@@ -62,6 +64,7 @@ export default function StudentDashboard() {
   const { data: apiSessions = [], isLoading, error } = useUserSessions();
   const updateStatusMutation = useUpdateSessionStatus();
   const submitFeedbackMutation = useSubmitFeedback();
+  const fetchMeetLinkMutation = useSessionMeetLink();
 
   const [feedback, setFeedback] = useState<Record<string, FeedbackForm>>({});
   const [historyFilter, setHistoryFilter] = useState<'all' | 'completed' | 'canceled'>('all');
@@ -177,6 +180,21 @@ export default function StudentDashboard() {
         },
       }
     );
+  };
+
+  const handleFetchMeetLink = async (sessionId: string) => {
+    try {
+      const result = await fetchMeetLinkMutation.mutateAsync(sessionId);
+      if (result.meetLink) {
+        window.open(result.meetLink, '_blank', 'noopener,noreferrer');
+      } else {
+        toast.error(t('dashboard.upcoming.meetLinkUnavailable'));
+      }
+      return result.meetLink;
+    } catch (err) {
+      toast.error((err as Error).message || t('dashboard.upcoming.meetLinkUnavailable'));
+      return null;
+    }
   };
 
   const handleSubmitFeedback = async (sessionId: string) => {
@@ -316,6 +334,12 @@ export default function StudentDashboard() {
                 <UpcomingSessions
                   sessions={upcomingSessions}
                   onCancel={handleCancelSession}
+                  onFetchMeetLink={handleFetchMeetLink}
+                  fetchingMeetLinkId={
+                    fetchMeetLinkMutation.isPending
+                      ? (fetchMeetLinkMutation.variables ?? null)
+                      : null
+                  }
                 />
               </div>
 

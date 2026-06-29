@@ -125,7 +125,15 @@
       "cancel": "Cancel",
       "success": "Session booked successfully!",
       "failed": "Failed to book session. Please try again.",
-      "slotTaken": "This slot has already been taken. Please choose another."
+      "slotTaken": "This slot has already been taken. Please choose another.",
+      "meetLinkSent": "Meeting link has been sent to your email and saved in your dashboard.",
+      "meetLinkPending": "Your session is booked. The Google Meet link will appear in your dashboard shortly.",
+      "joinMeet": "Join Google Meet",
+      "copyMeetLink": "Copy Link",
+      "meetLinkCopied": "Meeting link copied to clipboard",
+      "copyFailed": "Could not copy link. Please try again.",
+      "close": "Close",
+      "goToDashboard": "Go to Dashboard"
     },
     "discovery": {
       "title": "Expert Mentors",
@@ -229,6 +237,11 @@
       "cancelConfirm": "Are you sure you want to cancel this session?",
       "cancelSuccess": "Session canceled successfully",
       "joinMeeting": "Join Meeting",
+      "joinGoogleMeet": "Join Google Meet",
+      "meetLinkPending": "Meeting link is being generated",
+      "getMeetLink": "Get Meeting Link",
+      "fetchingMeetLink": "Generating...",
+      "meetLinkUnavailable": "Meeting link is not available yet. Please try again later.",
       "today": "Today",
       "tomorrow": "Tomorrow",
       "mins": "mins"

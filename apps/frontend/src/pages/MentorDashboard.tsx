@@ -11,6 +11,7 @@ import {
   AlertCircle,
   CheckCircle,
   Loader2,
+  Video,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useUserSessions, useUpdateSessionStatus } from '@/hooks/useSessions';
@@ -293,6 +294,17 @@ export default function MentorDashboard() {
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
+                            {session.meetLink && (
+                              <a
+                                href={session.meetLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-rs-success hover:bg-rs-success/90 text-white transition-colors flex items-center gap-1.5"
+                              >
+                                <Video className="w-3.5 h-3.5" />
+                                {t('dashboard.upcoming.joinGoogleMeet')}
+                              </a>
+                            )}
                             <button
                               onClick={() => handleCancelSession(session.id)}
                               className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-rs-danger/30 text-rs-danger hover:bg-rs-danger/10 transition-colors"
