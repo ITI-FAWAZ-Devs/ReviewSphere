@@ -20,19 +20,27 @@ services:
     build:
       context: .
       dockerfile: apps/backend/Dockerfile
+      target: deps
+    command: sh -c "pnpm --filter @reviewsphere/db db:generate && pnpm --filter @reviewsphere/backend dev"
     restart: unless-stopped
     ports:
       - "3001:3001"
+    # Loads GOOGLE_* and other secrets from the backend env file.
+    env_file:
+      - apps/backend/.env
+    # These override env_file because the DB host/port differ inside the Docker network.
     environment:
       DATABASE_URL: postgres://postgres:postgres@postgres:5432/reviewsphere?schema=public
-      NODE_ENV: production
+      NODE_ENV: development
       PORT: 3001
-      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
-      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
-      GOOGLE_REFRESH_TOKEN: ${GOOGLE_REFRESH_TOKEN:-}
-      GOOGLE_CLIENT_EMAIL: ${GOOGLE_CLIENT_EMAIL:-}
-      GOOGLE_PRIVATE_KEY: ${GOOGLE_PRIVATE_KEY:-}
-      GOOGLE_IMPERSONATE_SUBJECT: ${GOOGLE_IMPERSONATE_SUBJECT:-}
+    volumes:
+      # Bind-mount the whole repo so source edits are picked up by tsx watch.
+      - .:/app
+      # Keep the container's installed dependencies (don't let the host clobber them).
+      - /app/node_modules
+      - /app/apps/backend/node_modules
+      - /app/packages/db/node_modules
+      - /app/packages/types/node_modules
     depends_on:
       postgres:
         condition: service_healthy
@@ -41,9 +49,19 @@ services:
     build:
       context: .
       dockerfile: apps/frontend/Dockerfile
+      target: deps
+    command: pnpm --filter @reviewsphere/frontend dev
     restart: unless-stopped
     ports:
-      - "4173:4173"
+      - "5173:5173"
+    environment:
+      NODE_ENV: development
+      VITE_PROXY_TARGET: http://backend:3001
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/apps/frontend/node_modules
+      - /app/packages/types/node_modules
     depends_on:
       - backend
 
