@@ -17,6 +17,7 @@ import { useStacks } from '@/hooks/useAuth';
 import {
   useAdminUsers,
   useUpdateUserStatus,
+  useUpdateUserRole,
   useCreateStack,
   useDeleteStack,
 } from '@/hooks/useAdmin';
@@ -50,6 +51,7 @@ export default function AdminDashboard() {
   const { data: stacks = [], isLoading: loadingStacks } = useStacks();
 
   const updateUserStatusMutation = useUpdateUserStatus();
+  const updateUserRoleMutation = useUpdateUserRole();
   const createStackMutation = useCreateStack();
   const deleteStackMutation = useDeleteStack();
 
@@ -70,6 +72,20 @@ export default function AdminDashboard() {
         },
         onError: (err) => {
           toast.error(err.message || 'Operation failed.');
+        },
+      }
+    );
+  };
+
+  const handleRoleChange = (userId: string, newRole: 'STUDENT' | 'MENTOR' | 'ADMIN') => {
+    updateUserRoleMutation.mutate(
+      { id: userId, role: newRole },
+      {
+        onSuccess: () => {
+          toast.success(`User role successfully updated to ${newRole}.`);
+        },
+        onError: (err) => {
+          toast.error(err.message || 'Failed to update user role.');
         },
       }
     );
@@ -241,15 +257,22 @@ export default function AdminDashboard() {
                                   </div>
                                 </td>
                                 <td className="px-5 py-4 whitespace-nowrap">
-                                  <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-semibold border ${
-                                    user.role === 'ADMIN'
-                                      ? 'bg-rs-accent/10 text-rs-accent border-rs-accent/20'
-                                      : user.role === 'MENTOR'
-                                      ? 'bg-rs-success/10 text-rs-success border-rs-success/20'
-                                      : 'bg-muted text-muted-foreground border-border'
-                                  }`}>
-                                    {user.role}
-                                  </span>
+                                  <select
+                                    value={user.role}
+                                    onChange={(e) => handleRoleChange(user.id, e.target.value as any)}
+                                    disabled={updateUserRoleMutation.isPending && updateUserRoleMutation.variables?.id === user.id}
+                                    className={`px-2 py-1 rounded-lg text-xs font-semibold border cursor-pointer focus:outline-none focus:ring-1 focus:ring-rs-accent/30 ${
+                                      user.role === 'ADMIN'
+                                        ? 'bg-rs-accent/10 text-rs-accent border-rs-accent/20'
+                                        : user.role === 'MENTOR'
+                                        ? 'bg-rs-success/10 text-rs-success border-rs-success/20'
+                                        : 'bg-muted text-muted-foreground border-border'
+                                    }`}
+                                  >
+                                    <option value="STUDENT">STUDENT</option>
+                                    <option value="MENTOR">MENTOR</option>
+                                    <option value="ADMIN">ADMIN</option>
+                                  </select>
                                 </td>
                                 <td className="px-5 py-4 whitespace-nowrap">
                                   <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-semibold border ${

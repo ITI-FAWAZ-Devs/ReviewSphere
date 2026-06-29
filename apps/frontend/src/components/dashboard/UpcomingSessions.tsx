@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Calendar, Video } from 'lucide-react';
+import { Calendar, Video, Clock } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import MentorAvatar from './MentorAvatar';
 
@@ -66,30 +66,33 @@ export default function UpcomingSessions({
   };
 
   return (
-    <section className="space-y-4">
+    <section className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-foreground">{t('dashboard.upcoming.title')}</h2>
+        <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
+          <Calendar className="w-5 h-5 text-rs-accent" />
+          {t('dashboard.upcoming.title')}
+        </h2>
         <button
           type="button"
-          className="text-sm text-rs-accent hover:text-rs-accent-hover font-medium transition-colors"
+          className="text-sm text-rs-accent hover:text-rs-accent-hover font-semibold transition-colors"
         >
           {t('dashboard.upcoming.viewCalendar')}
         </button>
       </div>
 
       {sessions.length === 0 ? (
-        <div className="bg-card border border-border rounded-2xl p-10 text-center">
-          <Calendar className="w-12 h-12 text-muted-foreground mx-auto mb-3 opacity-60" />
-          <p className="text-muted-foreground">{t('dashboard.upcoming.empty')}</p>
+        <div className="bg-card/40 backdrop-blur-md border-2 border-dashed border-border rounded-3xl p-12 text-center shadow-inner">
+          <Calendar className="w-16 h-16 text-muted-foreground/40 mx-auto mb-4" />
+          <p className="text-muted-foreground font-medium text-lg">{t('dashboard.upcoming.empty')}</p>
           <Link
             to="/mentors"
-            className="inline-block mt-4 text-sm font-medium text-rs-accent hover:text-rs-accent-hover"
+            className="inline-block mt-5 px-6 py-2.5 rounded-xl bg-rs-accent text-white font-semibold shadow-md shadow-rs-accent/20 hover:shadow-lg hover:shadow-rs-accent/30 hover:-translate-y-0.5 transition-all"
           >
-            {t('dashboard.upcoming.findMentor')} &rarr;
+            {t('dashboard.upcoming.findMentor')}
           </Link>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 gap-5">
           {sessions.map((session, index) => {
             const startDb = formatDbTime(session.startTime);
             const endDb = formatDbTime(session.endsAt);
@@ -99,39 +102,54 @@ export default function UpcomingSessions({
             return (
               <div
                 key={session.id}
-                className={`bg-card border rounded-2xl p-5 shadow-sm transition-all duration-200 hover:shadow-md ${
+                className={`group relative bg-card/60 backdrop-blur-xl border rounded-3xl p-6 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden ${
                   isPrimary
-                    ? 'border-s-4 border-s-rs-accent border-border'
-                    : 'border-border'
+                    ? 'border-rs-accent/50'
+                    : 'border-border hover:border-rs-accent/30'
                 }`}
               >
-                <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                  <div className="flex items-start gap-4 flex-1 min-w-0">
-                    <MentorAvatar
-                      name={session.mentorName}
-                      avatarUrl={session.mentorAvatar}
-                    />
-                    <div className="min-w-0">
-                      <h3 className="font-semibold text-foreground truncate">
+                {/* Background accent glow for next session */}
+                {isPrimary && (
+                  <div className="absolute inset-0 bg-gradient-to-r from-rs-accent/5 via-rs-accent/5 to-transparent pointer-events-none" />
+                )}
+
+                <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6">
+                  {/* Info Section */}
+                  <div className="flex items-start gap-5 flex-1 min-w-0">
+                    <div className="relative">
+                      <MentorAvatar
+                        name={session.mentorName}
+                        avatarUrl={session.mentorAvatar}
+                      />
+                      {isPrimary && (
+                        <div className="absolute -bottom-1 -end-1 w-3.5 h-3.5 bg-rs-success border-2 border-card rounded-full shadow-sm" />
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <h3 className="text-lg font-bold text-foreground truncate group-hover:text-rs-accent transition-colors">
                         {session.mentorName}
                       </h3>
-                      <p className="text-sm text-muted-foreground truncate">{session.title}</p>
-                      <div className="flex flex-wrap items-center gap-2 mt-3">
-                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-mono font-medium bg-rs-accent/10 text-rs-accent border border-rs-accent/20">
-                          {dateLabel}, {startDb} – {endDb}
+                      <p className="text-sm font-medium text-muted-foreground truncate mb-3">{session.title}</p>
+                      
+                      <div className="flex flex-wrap items-center gap-3">
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-rs-accent/10 text-rs-accent border border-rs-accent/20 shadow-sm">
+                          <Calendar className="w-3.5 h-3.5" />
+                          {dateLabel}
                         </span>
-                        <span className="text-xs text-muted-foreground font-mono">
-                          {session.duration} {t('dashboard.upcoming.mins')}
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-muted text-foreground border border-border">
+                          <Clock className="w-3.5 h-3.5 text-muted-foreground" />
+                          {startDb} – {endDb}
                         </span>
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 sm:flex-shrink-0">
+                  {/* Actions Section */}
+                  <div className="flex items-center gap-3 md:flex-shrink-0">
                     <button
                       type="button"
                       onClick={() => onCancel(session.id)}
-                      className="px-4 py-2 text-sm font-semibold rounded-[10px] border border-rs-danger/30 text-rs-danger bg-rs-danger/5 hover:bg-rs-danger/10 transition-colors"
+                      className="px-4 py-2.5 text-xs font-bold uppercase tracking-wider rounded-xl border-2 border-rs-danger/20 text-rs-danger hover:bg-rs-danger/5 hover:border-rs-danger/40 transition-colors"
                     >
                       {t('dashboard.upcoming.cancelSession')}
                     </button>
@@ -140,7 +158,7 @@ export default function UpcomingSessions({
                         href={session.meetLink}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="px-4 py-2 text-sm font-semibold rounded-[10px] bg-rs-accent hover:bg-rs-accent-hover text-white transition-colors flex items-center gap-1.5"
+                        className="px-5 py-2.5 text-sm font-bold rounded-xl bg-rs-accent hover:bg-rs-accent-hover text-white transition-all shadow-md shadow-rs-accent/20 hover:shadow-lg hover:-translate-y-0.5 flex items-center gap-2"
                       >
                         <Video className="w-4 h-4" />
                         {t('dashboard.upcoming.joinMeeting')}
@@ -150,7 +168,7 @@ export default function UpcomingSessions({
                         type="button"
                         onClick={() => onFetchMeetLink(session.id)}
                         disabled={fetchingMeetLinkId === session.id}
-                        className="px-4 py-2 text-sm font-semibold rounded-[10px] bg-rs-accent/80 hover:bg-rs-accent text-white transition-colors flex items-center gap-1.5 disabled:opacity-60"
+                        className="px-5 py-2.5 text-sm font-bold rounded-xl bg-rs-accent hover:bg-rs-accent-hover text-white transition-all shadow-md shadow-rs-accent/20 flex items-center gap-2 disabled:opacity-50 disabled:hover:translate-y-0"
                         title={t('dashboard.upcoming.meetLinkPending')}
                       >
                         <Video className="w-4 h-4" />
@@ -160,7 +178,7 @@ export default function UpcomingSessions({
                       </button>
                     ) : (
                       <span
-                        className="px-4 py-2 text-sm font-semibold rounded-[10px] bg-rs-accent/50 text-white/70 flex items-center gap-1.5 cursor-not-allowed"
+                        className="px-5 py-2.5 text-sm font-bold rounded-xl bg-rs-accent/50 text-white/70 flex items-center gap-2 cursor-not-allowed"
                         title={t('dashboard.upcoming.meetLinkPending')}
                       >
                         <Video className="w-4 h-4" />

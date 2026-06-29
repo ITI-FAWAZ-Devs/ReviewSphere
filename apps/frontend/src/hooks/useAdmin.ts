@@ -32,6 +32,11 @@ export interface UpdateUserStatusInput {
   status: 'ACTIVE' | 'BLOCKED';
 }
 
+export interface UpdateUserRoleInput {
+  id: string;
+  role: 'STUDENT' | 'MENTOR' | 'ADMIN';
+}
+
 export interface CreateStackInput {
   name: string;
   description?: string;
@@ -52,6 +57,19 @@ export function useUpdateUserStatus() {
   return useMutation<any, Error, UpdateUserStatusInput>({
     mutationFn: async ({ id, status }) => {
       const { data } = await apiClient.put(`/admin/users/${id}/status`, { status });
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['adminUsers'] });
+    },
+  });
+}
+
+export function useUpdateUserRole() {
+  const queryClient = useQueryClient();
+  return useMutation<any, Error, UpdateUserRoleInput>({
+    mutationFn: async ({ id, role }) => {
+      const { data } = await apiClient.put(`/admin/users/${id}/role`, { role });
       return data;
     },
     onSuccess: () => {

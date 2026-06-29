@@ -97,6 +97,14 @@ function App() {
               }
             />
             <Route
+              path="/dashboard/mentor/sessions"
+              element={
+                <ProtectedRoute roles={['MENTOR']}>
+                  <MentorDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/dashboard/admin"
               element={
                 <ProtectedRoute roles={['ADMIN']}>

@@ -98,7 +98,7 @@ export function Navigation() {
           {/* Auth buttons — Desktop */}
           {user ? (
             <div className="hidden sm:flex items-center gap-3">
-              <Link to="/profile/edit" className="text-sm font-semibold text-muted-foreground hover:text-rs-accent transition-colors">
+              <Link to="/dashboard" className="text-sm font-semibold text-muted-foreground hover:text-rs-accent transition-colors">
                 {user.name}
               </Link>
               <Button size="sm" variant="outline" onClick={logout} className="rounded-full">
@@ -142,10 +142,10 @@ export function Navigation() {
                 {user ? (
                   <>
                     <Link
-                      to="/profile/edit"
+                      to="/dashboard"
                       className="text-sm font-medium py-2 text-muted-foreground hover:text-rs-accent transition-colors"
                     >
-                      {t('nav.settings')} ({user.name})
+                      {t('dashboard.sidebar.dashboard')} ({user.name})
                     </Link>
                     <Button size="sm" variant="outline" onClick={logout} className="w-full rounded-full">
                       {t('nav.signOut')}

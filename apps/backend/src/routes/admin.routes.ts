@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { listUsers, updateUserStatus } from '../controllers/admin.controller.js';
+import { listUsers, updateUserStatus, updateUserRole } from '../controllers/admin.controller.js';
 import { authenticate } from '../middleware/authenticate.js';
 import { authorize } from '../middleware/authorize.js';
 
@@ -10,5 +10,6 @@ router.use(authenticate, authorize('ADMIN'));
 
 router.get('/users', listUsers);
 router.put('/users/:id/status', updateUserStatus);
+router.put('/users/:id/role', updateUserRole);
 
 export default router;

@@ -6,6 +6,10 @@ const updateUserStatusSchema = z.object({
   status: z.enum(['ACTIVE', 'BLOCKED']),
 });
 
+const updateUserRoleSchema = z.object({
+  role: z.enum(['STUDENT', 'MENTOR', 'ADMIN']),
+});
+
 export async function listUsers(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const { page = '1', limit = '10', keyword = '' } = req.query as Record<string, string | undefined>;
@@ -84,6 +88,72 @@ export async function updateUserStatus(req: Request, res: Response, next: NextFu
       where: { id },
       data: { status: parsed.data.status },
       select: { id: true, email: true, status: true },
+    });
+
+    res.status(200).json(updated);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function updateUserRole(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const id = req.params['id'] as string;
+    const parsed = updateUserRoleSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ message: 'Validation error', errors: parsed.error.flatten().fieldErrors });
+      return;
+    }
+
+    const { role } = parsed.data;
+
+    const user = await prisma.user.findUnique({
+      where: { id },
+      include: {
+        studentProfile: true,
+        mentorProfile: true,
+      },
+    });
+
+    if (!user) {
+      res.status(404).json({ message: 'User not found' });
+      return;
+    }
+
+    // Ensure profiles exist if changing to a specific role
+    if (role === 'STUDENT' && !user.studentProfile) {
+      // Create a default student profile
+      const name = user.mentorProfile?.name || 'Student';
+      await prisma.studentProfile.create({
+        data: {
+          userId: user.id,
+          name,
+        },
+      });
+    } else if (role === 'MENTOR' && !user.mentorProfile) {
+      // Find a default stack
+      const firstStack = await prisma.stack.findFirst();
+      if (!firstStack) {
+        res.status(400).json({ message: 'No tech stacks available to assign default mentor profile. Please create a stack first.' });
+        return;
+      }
+
+      const name = user.studentProfile?.name || 'New Mentor';
+      await prisma.mentorProfile.create({
+        data: {
+          userId: user.id,
+          stackId: firstStack.id,
+          name,
+          title: 'New Mentor',
+          bio: 'Please update your bio in your profile settings.',
+        },
+      });
+    }
+
+    const updated = await prisma.user.update({
+      where: { id },
+      data: { role },
+      select: { id: true, email: true, role: true },
     });
 
     res.status(200).json(updated);

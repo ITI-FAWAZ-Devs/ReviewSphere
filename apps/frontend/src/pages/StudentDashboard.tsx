@@ -3,13 +3,13 @@ import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
   AlertCircle,
-  Bell,
   LayoutDashboard,
   LogOut,
   Search,
   Settings,
   Video,
   Loader2,
+  Sparkles
 } from 'lucide-react';
 import { toast } from '@/lib/toast';
 import { useAuth } from '@/context/AuthContext';
@@ -108,14 +108,14 @@ export default function StudentDashboard() {
 
   const pastSessions = useMemo(() => {
     return sessions
-      .filter((s) => s.status === 'Completed' || s.status === 'Canceled')
+      .filter((s) => s.status === 'Completed' || s.status === 'Canceled' || s.status === 'Cancelled')
       .sort((a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime());
   }, [sessions]);
 
   const filteredHistory = useMemo(() => {
     return pastSessions.filter((s) => {
       if (historyFilter === 'completed') return s.status === 'Completed';
-      if (historyFilter === 'canceled') return s.status === 'Canceled';
+      if (historyFilter === 'canceled') return s.status === 'Canceled' || s.status === 'Cancelled';
       return true;
     });
   }, [pastSessions, historyFilter]);
@@ -123,7 +123,7 @@ export default function StudentDashboard() {
   const stats = useMemo(() => {
     const completed = sessions.filter((s) => s.status === 'Completed');
     const hoursCompleted = completed.reduce((sum, s) => sum + s.duration, 0) / 60;
-    const rated = completed.filter((s) => s.rating !== undefined);
+    const rated = completed.filter((s) => s.rating !== undefined && s.rating !== null);
     const avgRating =
       rated.length > 0
         ? rated.reduce((sum, s) => sum + (s.rating ?? 0), 0) / rated.length
@@ -131,7 +131,7 @@ export default function StudentDashboard() {
     const uniqueStacks = new Set(
       completed.map((s) => s.mentor?.stack?.name).filter(Boolean)
     );
-    const pendingFeedback = completed.filter((s) => s.rating === undefined).length;
+    const pendingFeedback = completed.filter((s) => s.rating === undefined || s.rating === null).length;
 
     return {
       hoursCompleted: hoursCompleted.toFixed(1),
@@ -237,20 +237,22 @@ export default function StudentDashboard() {
     <div className="min-h-screen bg-background text-foreground">
       <div className="flex">
         {/* Sidebar */}
-        <aside className="hidden lg:flex w-64 flex-shrink-0 flex-col border-e border-border bg-card min-h-[calc(100vh-3.5rem)]">
-          <div className="px-6 pt-8 pb-6 border-b border-border">
-            <p className="text-lg font-bold text-foreground font-display">{t('common.appName')}</p>
-            <p className="text-xs text-muted-foreground mt-0.5">{t('dashboard.portal')}</p>
+        <aside className="hidden lg:flex w-64 flex-shrink-0 flex-col border-e border-border bg-card/60 backdrop-blur-3xl min-h-screen sticky top-0">
+          <div className="px-6 pt-8 pb-6">
+            <p className="text-xl font-extrabold text-foreground tracking-tight flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-rs-accent" /> {t('common.appName')}
+            </p>
+            <p className="text-xs font-semibold text-muted-foreground mt-1 uppercase tracking-widest">{t('dashboard.portal')}</p>
           </div>
 
           <nav className="flex-1 px-3 py-4 space-y-1">
             {SIDEBAR_LINKS.map(({ to, label, icon: Icon }) => {
               const active = location.pathname === to;
               const baseClass =
-                'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors relative';
+                'flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-semibold transition-all relative overflow-hidden group';
               const activeClass =
-                'bg-rs-accent/10 text-rs-accent border-e-2 border-rs-accent';
-              const inactiveClass = 'text-muted-foreground hover:text-foreground hover:bg-muted/40';
+                'bg-rs-accent text-white shadow-md shadow-rs-accent/20';
+              const inactiveClass = 'text-muted-foreground hover:text-foreground hover:bg-muted/60';
 
               return (
                 <Link
@@ -258,8 +260,8 @@ export default function StudentDashboard() {
                   to={to}
                   className={`${baseClass} ${active ? activeClass : inactiveClass}`}
                 >
-                  <Icon className="w-4 h-4" />
-                  {label}
+                  <Icon className="w-4 h-4 relative z-10" />
+                  <span className="relative z-10">{label}</span>
                 </Link>
               );
             })}
@@ -269,7 +271,7 @@ export default function StudentDashboard() {
             <button
               type="button"
               onClick={logout}
-              className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-muted-foreground hover:text-rs-danger hover:bg-rs-danger/10 transition-colors"
+              className="flex items-center gap-3 w-full px-4 py-3 rounded-2xl text-sm font-semibold text-muted-foreground hover:text-rs-danger hover:bg-rs-danger/10 transition-colors"
             >
               <LogOut className="w-4 h-4" />
               {t('dashboard.sidebar.logout')}
@@ -279,48 +281,36 @@ export default function StudentDashboard() {
 
         {/* Main content */}
         <div className="flex-1 min-w-0">
-          {/* Header */}
-          <header className="flex items-start justify-between gap-4 px-6 md:px-8 pt-8 pb-6 border-b border-border">
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-foreground">
+          {/* Header Banner */}
+          <header className="relative flex flex-col md:flex-row md:items-end justify-between gap-6 px-6 md:px-10 pt-12 pb-10 border-b border-border bg-gradient-to-r from-rs-accent/10 via-background to-background">
+            <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:30px_30px] pointer-events-none" />
+            <div className="relative z-10">
+              <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-foreground">
                 {t('dashboard.welcome', { name: firstName })}
               </h1>
-              <p className="text-sm text-muted-foreground mt-1">
+              <p className="text-base text-muted-foreground mt-2 font-medium">
                 {t('dashboard.upcomingCount', { count: upcomingSessions.length })}
               </p>
             </div>
 
-            <div className="flex items-center gap-3 flex-shrink-0">
-              <button
-                type="button"
-                className="relative p-2 rounded-xl border border-border bg-card text-muted-foreground hover:text-foreground hover:border-rs-accent/50 transition-colors"
-                aria-label="Notifications"
-              >
-                <Bell className="w-5 h-5" />
-                {upcomingSessions.length > 0 && (
-                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-rs-danger text-[10px] font-bold text-white flex items-center justify-center font-mono">
-                    {Math.min(upcomingSessions.length, 9)}
-                  </span>
-                )}
-              </button>
-
+            <div className="relative z-10 flex items-center gap-4 flex-shrink-0">
               <Link
                 to="/profile/edit"
-                className="flex items-center gap-2.5 pl-1.5 pr-3 py-1.5 rounded-full border border-border bg-card hover:border-rs-accent/50 transition-colors"
+                className="flex items-center gap-3 pl-2 pr-4 py-2 rounded-full border-2 border-border/60 bg-card/50 backdrop-blur-md hover:border-rs-accent/50 hover:bg-card transition-all shadow-sm group"
               >
                 <MentorAvatar name={user?.name ?? 'Student'} size="sm" />
-                <span className="text-sm font-medium text-foreground hidden sm:inline">
+                <span className="text-sm font-bold text-foreground group-hover:text-rs-accent transition-colors">
                   {user?.name ?? 'Student'}
                 </span>
               </Link>
             </div>
           </header>
 
-          <div className="px-6 md:px-8 py-6 md:py-8 space-y-8">
+          <div className="px-6 md:px-10 py-8 md:py-10 space-y-10">
             {error && (
-              <div className="p-4 bg-rs-danger/10 border border-rs-danger/30 rounded-xl flex items-center gap-3">
+              <div className="p-4 bg-rs-danger/10 border border-rs-danger/30 rounded-2xl flex items-center gap-3">
                 <AlertCircle className="w-5 h-5 text-rs-danger flex-shrink-0" />
-                <p className="text-rs-danger text-sm">{error.message}</p>
+                <p className="text-rs-danger text-sm font-medium">{error.message}</p>
               </div>
             )}
 
@@ -328,7 +318,7 @@ export default function StudentDashboard() {
             <DashboardStats stats={stats} />
 
             {/* Sessions + sidebar widgets */}
-            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
               {/* Upcoming sessions */}
               <div className="xl:col-span-2">
                 <UpcomingSessions
@@ -344,20 +334,21 @@ export default function StudentDashboard() {
               </div>
 
               {/* Right widgets */}
-              <aside className="space-y-4">
+              <aside className="space-y-6">
                 {/* Learning progress */}
-                <div className="bg-card border border-border rounded-2xl p-5 shadow-sm">
-                  <h3 className="text-base font-semibold text-foreground mb-4">{t('dashboard.progress.title')}</h3>
-                  <div className="space-y-4">
+                <div className="bg-card/60 backdrop-blur-xl border border-border rounded-3xl p-6 shadow-sm relative overflow-hidden">
+                  <div className="absolute top-0 right-0 p-32 bg-rs-accent/5 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none" />
+                  <h3 className="text-lg font-bold text-foreground mb-6 relative z-10">{t('dashboard.progress.title')}</h3>
+                  <div className="space-y-5 relative z-10">
                     {skillProgress.map(({ name, percent }) => (
-                      <div key={name}>
-                        <div className="flex items-center justify-between text-sm mb-1.5">
-                          <span className="text-foreground font-mono">{name}</span>
-                          <span className="text-muted-foreground font-medium font-mono">{percent}%</span>
+                      <div key={name} className="group">
+                        <div className="flex items-center justify-between text-sm mb-2">
+                          <span className="text-foreground font-bold tracking-tight">{name}</span>
+                          <span className="text-rs-accent font-bold">{percent}%</span>
                         </div>
-                        <div className="h-2 rounded-full bg-muted overflow-hidden">
+                        <div className="h-2.5 rounded-full bg-muted overflow-hidden shadow-inner">
                           <div
-                            className="h-full rounded-full bg-gradient-to-r from-rs-accent to-rs-accent-hover transition-all"
+                            className="h-full rounded-full bg-gradient-to-r from-rs-accent to-rs-accent-hover transition-all duration-500 ease-out group-hover:scale-y-110"
                             style={{ width: `${percent}%` }}
                           />
                         </div>
@@ -366,13 +357,11 @@ export default function StudentDashboard() {
                   </div>
                   <button
                     type="button"
-                    className="w-full mt-5 py-2.5 text-sm font-medium rounded-xl border border-border text-muted-foreground hover:bg-muted/50 transition-colors"
+                    className="w-full mt-8 py-3 text-sm font-bold rounded-xl bg-muted/50 border border-border text-foreground hover:bg-muted hover:border-rs-accent/30 transition-all relative z-10"
                   >
                     {t('dashboard.progress.viewAll')}
                   </button>
                 </div>
-
-
               </aside>
             </div>
 

@@ -10,24 +10,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { User, Settings, Briefcase, FileText, DollarSign, Layers } from 'lucide-react';
-import AvailabilityManager from '@/components/AvailabilityManager';
-
 interface Stack {
   id: string;
   name: string;
   description: string | null;
 }
 
-interface AvailabilityBlock {
-  day_of_week: number;
-  start_time: string;
-  end_time: string;
-}
-
-function parseTimeToMinutes(timeStr: string): number {
-  const [hours, minutes] = timeStr.split(':').map(Number);
-  return hours * 60 + minutes;
-}
 
 /* ── Skeleton ───────────────────────────────────────────────── */
 function EditSkeleton() {
@@ -61,12 +49,10 @@ export default function ProfileEditPage() {
   const [name, setName] = useState('');
 
   // Mentor fields
-  const [mentorProfileId, setMentorProfileId] = useState('');
   const [title, setTitle] = useState('');
   const [bio, setBio] = useState('');
   const [hourlyRate, setHourlyRate] = useState<number>(0);
   const [stackId, setStackId] = useState('');
-  const [availabilities, setAvailabilities] = useState<AvailabilityBlock[]>([]);
 
   // Redirect if not logged in
   useEffect(() => {
@@ -98,26 +84,10 @@ export default function ProfileEditPage() {
 
           const mp = profileRes.data.mentorProfile;
           if (mp) {
-            setMentorProfileId(mp.id);
             setTitle(mp.title || '');
             setBio(mp.bio || '');
             setHourlyRate(mp.hourlyRate || 0);
             setStackId(mp.stackId || '');
-            if (mp.availabilities) {
-              setAvailabilities(
-                mp.availabilities
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  .map((a: any) => ({
-                    day_of_week: a.dayOfWeek,
-                    start_time: a.startTime,
-                    end_time: a.endTime,
-                  }))
-                  .sort((a: AvailabilityBlock, b: AvailabilityBlock) => {
-                    if (a.day_of_week !== b.day_of_week) return a.day_of_week - b.day_of_week;
-                    return parseTimeToMinutes(a.start_time) - parseTimeToMinutes(b.start_time);
-                  })
-              );
-            }
           }
         } catch {
           toast.error(t('profile.edit.loadError'));
@@ -148,15 +118,12 @@ export default function ProfileEditPage() {
         if (hourlyRate < 0) { toast.error(t('profile.edit.rateNegative')); return; }
         if (!stackId) { toast.error(t('profile.edit.stackRequired')); return; }
 
-        await Promise.all([
-          apiClient.put('/auth/profile', {
-            title,
-            bio,
-            hourly_rate: hourlyRate,
-            stack_id: stackId,
-          }),
-          apiClient.put(`/mentors/${mentorProfileId}/availability`, availabilities),
-        ]);
+        await apiClient.put('/auth/profile', {
+          title,
+          bio,
+          hourly_rate: hourlyRate,
+          stack_id: stackId,
+        });
       }
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -284,12 +251,6 @@ export default function ProfileEditPage() {
                       </div>
                     </div>
                   </div>
-
-                  {/* AVAILABILITY MANAGER */}
-                  <AvailabilityManager
-                    availabilities={availabilities}
-                    onChange={setAvailabilities}
-                  />
                 </div>
               )}
 

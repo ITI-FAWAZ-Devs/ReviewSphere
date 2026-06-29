@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Star, CheckCircle, Calendar, Clock, ArrowLeft } from 'lucide-react';
+import { Star, CheckCircle, Calendar as CalendarIcon, Clock, ArrowLeft, GraduationCap, MapPin, Code2, Video, Sparkles, Award, ShieldCheck } from 'lucide-react';
 import apiClient from '@/lib/axios';
 import { toast } from '@/lib/toast';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import BookingModal from '@/components/BookingModal';
 import BookingSuccessModal from '@/components/BookingSuccessModal';
@@ -39,13 +39,11 @@ interface Slot {
 /* ── Skeleton ───────────────────────────────────────────────── */
 function ProfileSkeleton() {
   return (
-    <div className="min-h-screen bg-background py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-6xl mx-auto space-y-8 animate-pulse">
-        <div className="h-6 w-32 bg-muted rounded-md" />
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-1 bg-card border border-border h-96 rounded-2xl" />
-          <div className="lg:col-span-2 bg-card border border-border h-96 rounded-2xl" />
-        </div>
+    <div className="min-h-screen bg-background py-10 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
+      <div className="flex flex-col items-center gap-6 animate-pulse">
+        <div className="w-32 h-32 rounded-full bg-muted" />
+        <div className="h-8 bg-muted rounded-md w-48" />
+        <div className="h-4 bg-muted rounded-md w-32" />
       </div>
     </div>
   );
@@ -55,11 +53,12 @@ function ProfileSkeleton() {
 function ProfileNotFound() {
   const { t } = useTranslation();
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4">
-      <p className="text-xl font-semibold text-muted-foreground mb-4">
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4 relative overflow-hidden">
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-rs-accent/10 blur-[100px] rounded-full pointer-events-none" />
+      <p className="text-2xl font-bold text-foreground mb-6 z-10">
         {t('mentor.profile.notFound')}
       </p>
-      <Button asChild variant="outline">
+      <Button asChild variant="outline" className="rounded-2xl z-10 border-2 hover:bg-rs-accent/10">
         <Link to="/mentors" className="flex items-center gap-2">
           <ArrowLeft className="w-4 h-4" /> {t('mentor.profile.backToDiscovery')}
         </Link>
@@ -85,7 +84,6 @@ export default function MentorProfilePage() {
     slot: Slot;
   } | null>(null);
 
-  // Fetch Mentor details
   useEffect(() => {
     async function fetchMentor() {
       try {
@@ -101,7 +99,6 @@ export default function MentorProfilePage() {
     if (id) fetchMentor();
   }, [id]);
 
-  // Fetch Availability Slots on date change
   useEffect(() => {
     async function fetchSlots() {
       try {
@@ -154,169 +151,187 @@ export default function MentorProfilePage() {
   if (loadingMentor) return <ProfileSkeleton />;
   if (!mentor) return <ProfileNotFound />;
 
-  const fullStars = Math.floor(mentor.averageRating);
-  const hasHalfStar = mentor.averageRating % 1 >= 0.5;
-
   return (
     <>
-      <div className="min-h-screen bg-background py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-6xl mx-auto">
-          {/* Back Link */}
-          <div className="mb-6">
-            <Link
-              to="/mentors"
-              className="inline-flex items-center gap-2 text-sm text-rs-accent hover:text-rs-accent-hover transition-colors font-medium"
-            >
-              <ArrowLeft className="w-4 h-4" /> {t('mentor.profile.backToDiscovery')}
-            </Link>
-          </div>
+      <div className="min-h-screen bg-background pb-20 relative overflow-hidden">
+        {/* Ambient background glows */}
+        <div className="absolute top-0 left-0 w-full h-96 bg-gradient-to-b from-rs-accent/10 to-transparent pointer-events-none" />
+        <div className="absolute top-40 right-10 w-[500px] h-[500px] bg-rs-accent/20 blur-[150px] rounded-full pointer-events-none" />
+        <div className="absolute bottom-10 left-10 w-[400px] h-[400px] bg-rs-accent/10 blur-[120px] rounded-full pointer-events-none" />
+        <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:30px_30px] pointer-events-none" />
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-            {/* Left Column — Info Card */}
-            <Card className="lg:col-span-1 bg-card border-border shadow-lg relative overflow-hidden">
-              <div className="absolute top-0 start-0 w-full h-[4px] bg-rs-accent" />
-              <CardHeader className="flex flex-col items-center pt-8 text-center">
-                <div className="relative mb-4">
-                  {mentor.avatarUrl ? (
-                    <img
-                      src={mentor.avatarUrl}
-                      alt={mentor.name}
-                      className="w-24 h-24 rounded-full object-cover border-2 border-rs-accent/30"
-                    />
-                  ) : (
-                    <div className="w-24 h-24 rounded-full bg-rs-accent flex items-center justify-center text-3xl font-bold text-white border-2 border-rs-accent/30">
-                      {mentor.name.slice(0, 2).toUpperCase()}
-                    </div>
-                  )}
-                  {mentor.isVerified && (
-                    <CheckCircle className="w-6 h-6 text-rs-success fill-background absolute bottom-0 end-0" />
-                  )}
-                </div>
+        {/* Back Link */}
+        <div className="max-w-7xl mx-auto px-6 lg:px-8 pt-8 relative z-20">
+          <Link
+            to="/mentors"
+            className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-card/60 backdrop-blur-md border border-border/50 text-foreground hover:bg-card hover:text-rs-accent transition-all shadow-sm font-semibold text-sm"
+          >
+            <ArrowLeft className="w-4 h-4" /> {t('mentor.profile.backToDiscovery')}
+          </Link>
+        </div>
 
-                <div className="space-y-1">
-                  <CardTitle className="text-xl font-bold tracking-tight text-foreground flex items-center justify-center gap-1.5">
-                    {mentor.name}
-                  </CardTitle>
-                  <p className="text-xs text-rs-accent font-semibold tracking-wider uppercase">
-                    {mentor.title}
-                  </p>
+        <div className="max-w-7xl mx-auto px-6 lg:px-8 mt-8 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+            
+            {/* LEFT COLUMN: Mentor Hero & Info (Span 7) */}
+            <div className="lg:col-span-7 space-y-8">
+              
+              {/* Profile Card (Hero) */}
+              <div className="bg-card/60 backdrop-blur-2xl border border-border rounded-[2.5rem] p-8 md:p-10 shadow-2xl relative overflow-hidden group">
+                <div className="absolute top-0 right-0 p-8">
+                  <Sparkles className="w-8 h-8 text-rs-accent/20 group-hover:text-rs-accent/60 transition-colors duration-700" />
                 </div>
-              </CardHeader>
-              <CardContent className="space-y-6 pt-0">
-                {/* Rating + Price */}
-                <div className="flex flex-col items-center gap-2 py-3 px-4 rounded-xl bg-muted border border-border">
-                  <div className="flex items-center gap-1 text-rs-warning">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <Star
-                        key={i}
-                        className={`w-4 h-4 ${
-                          i < fullStars
-                            ? 'fill-rs-warning text-rs-warning'
-                            : i === fullStars && hasHalfStar
-                            ? 'fill-rs-warning text-rs-warning opacity-70'
-                            : 'text-muted-foreground/30'
-                        }`}
+                
+                <div className="flex flex-col md:flex-row items-center md:items-start gap-8 relative z-10">
+                  <div className="relative flex-shrink-0">
+                    <div className="absolute inset-0 bg-gradient-to-tr from-rs-accent to-rs-accent/40 rounded-full blur-2xl opacity-40 group-hover:opacity-70 transition-opacity duration-500" />
+                    {mentor.avatarUrl ? (
+                      <img
+                        src={mentor.avatarUrl}
+                        alt={mentor.name}
+                        className="w-36 h-36 md:w-44 md:h-44 rounded-full object-cover border-[6px] border-background relative z-10"
                       />
-                    ))}
-                    <span className="text-xs font-semibold text-foreground ms-1.5 mt-0.5">
-                      {mentor.averageRating.toFixed(1)}
-                    </span>
+                    ) : (
+                      <div className="w-36 h-36 md:w-44 md:h-44 rounded-full bg-gradient-to-br from-rs-accent to-rs-accent/60 flex items-center justify-center text-5xl font-extrabold text-white border-[6px] border-background relative z-10 shadow-xl">
+                        {mentor.name.slice(0, 2).toUpperCase()}
+                      </div>
+                    )}
+                    {mentor.isVerified && (
+                      <div className="absolute bottom-2 right-2 z-20 bg-background rounded-full p-1.5 shadow-lg">
+                        <CheckCircle className="w-8 h-8 text-rs-success fill-rs-success/20" />
+                      </div>
+                    )}
                   </div>
-                  <div className="text-sm font-semibold text-foreground mt-1">
-                    ${mentor.hourlyRate}{' '}
-                    <span className="text-xs text-muted-foreground font-normal">
-                      {t('mentor.profile.perHour')}
-                    </span>
-                  </div>
-                </div>
 
-                {/* Stack Badge — Signature monospace chip */}
-                <div className="space-y-2">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                    {t('mentor.profile.primaryStack')}
-                  </h4>
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-mono font-medium bg-rs-accent/10 text-rs-accent border border-rs-accent/20">
-                    {mentor.stack.name}
-                  </span>
-                </div>
+                  <div className="text-center md:text-start flex-1 pt-2">
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-rs-accent/10 text-rs-accent text-xs font-bold tracking-widest uppercase mb-4 border border-rs-accent/20">
+                      <GraduationCap className="w-3.5 h-3.5" />
+                      {t('auth.mentor')}
+                    </div>
+                    <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-foreground mb-2">
+                      {mentor.name}
+                    </h1>
+                    <p className="text-xl text-muted-foreground font-medium mb-6">
+                      {mentor.title}
+                    </p>
 
-                {/* Bio */}
-                <div className="space-y-2">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                    {t('mentor.profile.about')}
-                  </h4>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{mentor.bio}</p>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Right Column — Availability & Booking */}
-            <div className="lg:col-span-2 space-y-6">
-              <Card className="bg-card border-border shadow-lg relative overflow-hidden">
-                <CardHeader className="border-b border-border pb-5">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <CardTitle className="text-lg font-bold flex items-center gap-2.5 text-foreground">
-                      <Calendar className="w-5 h-5 text-rs-accent" />{' '}
-                      {t('mentor.availability.chooseDate')}
-                    </CardTitle>
-                    <div className="relative w-full sm:w-auto">
-                      <input
-                        type="date"
-                        value={date}
-                        min={todayStr}
-                        onChange={(e) => setDate(e.target.value)}
-                        className="w-full sm:w-auto bg-muted border border-border rounded-[10px] px-4 py-2.5 text-sm font-medium text-foreground focus:outline-none focus:border-rs-accent transition-colors focus:ring-1 focus:ring-rs-accent/20"
-                      />
+                    <div className="flex flex-wrap justify-center md:justify-start gap-3">
+                      <span className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-muted border border-border text-sm font-semibold">
+                        <Star className="w-4 h-4 text-rs-warning fill-current" />
+                        {mentor.averageRating.toFixed(1)} Rating
+                      </span>
+                      <span className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-muted border border-border text-sm font-semibold">
+                        <Code2 className="w-4 h-4 text-rs-accent" />
+                        {mentor.stack.name}
+                      </span>
+                      <span className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-muted border border-border text-sm font-semibold">
+                        <MapPin className="w-4 h-4 text-muted-foreground" />
+                        Remote
+                      </span>
                     </div>
                   </div>
-                </CardHeader>
-                <CardContent className="pt-6">
-                  {loadingSlots ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                      {Array.from({ length: 6 }).map((_, i) => (
-                        <div
-                          key={i}
-                          className="bg-muted border border-border h-24 rounded-xl animate-pulse"
-                        />
-                      ))}
-                    </div>
-                  ) : slots.length > 0 ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                      {slots.map((slot, index) => (
-                        <div
-                          key={index}
-                          className="group bg-muted border border-border hover:border-rs-accent/50 rounded-xl p-4 flex flex-col justify-between gap-4 transition-all hover:-translate-y-[2px] shadow-sm hover:shadow-md"
-                        >
-                          <div className="flex items-center gap-2">
-                            <Clock className="w-4 h-4 text-rs-accent" />
-                            <span className="text-sm font-semibold text-foreground">
-                              {slot.start_time} - {slot.end_time}
-                            </span>
-                          </div>
-                          <Button
-                            size="sm"
-                            onClick={() => setSelectedSlot(slot)}
-                            className="w-full rounded-lg bg-rs-accent hover:bg-rs-accent-hover text-white font-semibold"
-                          >
-                            {t('mentor.availability.book')}
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-12 px-4 border-2 border-dashed border-border rounded-2xl">
-                      <Clock className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
-                      <p className="text-sm font-medium text-muted-foreground">
-                        {t('mentor.availability.noSlots')}
-                      </p>
-                      <p className="text-xs text-muted-foreground/60 mt-1">
-                        {t('mentor.availability.noSlotsHint')}
-                      </p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+                </div>
+              </div>
+
+              {/* About Section */}
+              <div className="bg-card/40 backdrop-blur-xl border border-border rounded-[2.5rem] p-8 md:p-10 shadow-lg">
+                <h3 className="text-2xl font-extrabold text-foreground mb-6 flex items-center gap-3">
+                  <Award className="w-6 h-6 text-rs-accent" /> {t('mentor.profile.about')}
+                </h3>
+                <div className="prose prose-sm md:prose-base dark:prose-invert max-w-none text-muted-foreground leading-relaxed whitespace-pre-wrap font-medium">
+                  {mentor.bio}
+                </div>
+              </div>
             </div>
+
+            {/* RIGHT COLUMN: Booking Widget (Span 5) */}
+            <div className="lg:col-span-5">
+              <div className="sticky top-10">
+                <Card className="bg-card/80 backdrop-blur-3xl border border-border shadow-[0_8px_30px_rgb(0,0,0,0.12)] rounded-[2.5rem] overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-b from-rs-accent/5 to-transparent pointer-events-none" />
+                  
+                  {/* Pricing Header inside Widget */}
+                  <div className="p-8 pb-0 relative z-10 flex items-end justify-between">
+                    <div>
+                      <h2 className="text-3xl font-extrabold text-foreground">Schedule</h2>
+                      <p className="text-muted-foreground font-medium mt-1">Book your 1-on-1 session</p>
+                    </div>
+                    <div className="text-end">
+                      <div className="text-3xl font-extrabold text-rs-accent">${mentor.hourlyRate}</div>
+                      <div className="text-xs font-bold uppercase tracking-widest text-muted-foreground mt-1">/ hour</div>
+                    </div>
+                  </div>
+                  
+                  <div className="p-8 relative z-10">
+                    {/* Date Picker */}
+                    <div className="mb-8">
+                      <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3 flex items-center gap-2">
+                        <CalendarIcon className="w-4 h-4 text-rs-accent" /> Select a Date
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="date"
+                          value={date}
+                          min={todayStr}
+                          onChange={(e) => setDate(e.target.value)}
+                          className="w-full bg-background border-2 border-border rounded-2xl px-5 py-4 text-lg font-bold text-foreground focus:outline-none focus:border-rs-accent transition-all hover:border-rs-accent/50 cursor-pointer shadow-inner"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Slots Grid */}
+                    <div>
+                      <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3 flex items-center gap-2">
+                        <Clock className="w-4 h-4 text-rs-accent" /> Available Times
+                      </label>
+                      
+                      {loadingSlots ? (
+                        <div className="grid grid-cols-2 gap-3">
+                          {Array.from({ length: 6 }).map((_, i) => (
+                            <div key={i} className="h-14 bg-muted rounded-2xl animate-pulse" />
+                          ))}
+                        </div>
+                      ) : slots.length > 0 ? (
+                        <div className="grid grid-cols-2 gap-3 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                          {slots.map((slot, index) => (
+                            <button
+                              key={index}
+                              onClick={() => setSelectedSlot(slot)}
+                              className="group relative flex items-center justify-center py-4 px-4 rounded-2xl border-2 border-border bg-background hover:border-rs-accent hover:bg-rs-accent/10 transition-all text-sm font-extrabold text-foreground overflow-hidden shadow-sm"
+                            >
+                              <span className="relative z-10 flex items-center gap-2">
+                                {slot.start_time}
+                              </span>
+                            </button>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="flex flex-col items-center justify-center py-12 px-4 border-2 border-dashed border-border rounded-3xl bg-background/50">
+                          <Clock className="w-10 h-10 text-muted-foreground/30 mb-4" />
+                          <p className="text-base font-bold text-foreground">
+                            {t('mentor.availability.noSlots')}
+                          </p>
+                          <p className="text-sm font-medium text-muted-foreground mt-1 text-center max-w-[200px]">
+                            Try selecting a different date
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Footer Guarantee */}
+                  <div className="bg-muted/30 p-6 border-t border-border flex flex-col gap-3">
+                    <div className="flex items-center gap-3 text-sm font-bold text-foreground">
+                      <ShieldCheck className="w-5 h-5 text-rs-success" /> Secure Booking Guarantee
+                    </div>
+                    <div className="flex items-center gap-3 text-sm font-bold text-foreground">
+                      <Video className="w-5 h-5 text-rs-accent" /> Automatic Google Meet link
+                    </div>
+                  </div>
+                </Card>
+              </div>
+            </div>
+            
           </div>
         </div>
       </div>

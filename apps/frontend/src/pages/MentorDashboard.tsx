@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
@@ -12,29 +12,63 @@ import {
   CheckCircle,
   Loader2,
   Video,
+  Plus
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useUserSessions, useUpdateSessionStatus } from '@/hooks/useSessions';
 import { toast } from '@/lib/toast';
+import apiClient from '@/lib/axios';
 import MentorAvatar from '@/components/dashboard/MentorAvatar';
 import { Button } from '@/components/ui/button';
+import AvailabilityDialog from '@/components/dashboard/AvailabilityDialog';
+
+interface AvailabilityBlock {
+  dayOfWeek: number;
+  startTime: string;
+  endTime: string;
+}
 
 export default function MentorDashboard() {
   const { user, logout } = useAuth();
   const { t, i18n } = useTranslation();
   const location = useLocation();
 
-  const { data: apiSessions = [], isLoading, error } = useUserSessions();
+  const isSessionsPage = location.pathname === '/dashboard/mentor/sessions';
+
+  const { data: apiSessions = [], isLoading: isLoadingSessions, error } = useUserSessions();
   const updateStatusMutation = useUpdateSessionStatus();
 
   const [historyFilter, setHistoryFilter] = useState<'all' | 'completed' | 'canceled'>('all');
   const [evaluationSessionId, setEvaluationSessionId] = useState<string | null>(null);
   const [evalNotes, setEvalNotes] = useState('');
+  const [showAddSessionDialog, setShowAddSessionDialog] = useState(false);
+  
+  const [availabilities, setAvailabilities] = useState<AvailabilityBlock[]>([]);
+  const [loadingProfile, setLoadingProfile] = useState(false);
+
+  const fetchProfile = async () => {
+    try {
+      setLoadingProfile(true);
+      const res = await apiClient.get('/auth/profile');
+      if (res.data.mentorProfile?.availabilities) {
+        setAvailabilities(res.data.mentorProfile.availabilities);
+      }
+    } catch (e) {
+      console.error("Failed to load mentor profile:", e);
+    } finally {
+      setLoadingProfile(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProfile();
+  }, []);
 
   const firstName = user?.name?.split(' ')[0] ?? t('auth.mentor');
 
   const SIDEBAR_LINKS = useMemo(() => [
     { to: '/dashboard/mentor', label: t('dashboard.sidebar.dashboard'), icon: LayoutDashboard },
+    { to: '/dashboard/mentor/sessions', label: 'My Sessions', icon: Calendar },
     { to: '/profile/edit', label: t('dashboard.sidebar.settings'), icon: Settings },
   ], [t]);
 
@@ -138,7 +172,9 @@ export default function MentorDashboard() {
     };
   };
 
-  if (isLoading) {
+  const getDayLabel = (day: number) => t(`profile.availability.days.${day}`);
+
+  if (isLoadingSessions) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
@@ -148,6 +184,150 @@ export default function MentorDashboard() {
       </div>
     );
   }
+
+  const renderAvailabilitySection = () => {
+    if (!isSessionsPage) return null;
+
+    return (
+      <section className="space-y-4 mb-8">
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
+            <Calendar className="w-5 h-5 text-rs-accent" /> My Availability Slots
+          </h2>
+          <Button
+            onClick={() => setShowAddSessionDialog(true)}
+            className="bg-rs-accent hover:bg-rs-accent-hover text-white rounded-xl text-xs font-semibold h-9 flex items-center gap-1.5"
+          >
+            <Plus className="w-3.5 h-3.5" /> Manage Availability
+          </Button>
+        </div>
+
+        <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm p-5">
+          {loadingProfile ? (
+            <div className="py-6 flex justify-center">
+              <Loader2 className="w-6 h-6 animate-spin text-rs-accent" />
+            </div>
+          ) : availabilities.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+              {availabilities.map((slot, i) => (
+                <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-muted border border-border">
+                  <Clock className="w-4 h-4 text-rs-accent" />
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">{getDayLabel(slot.dayOfWeek)}</p>
+                    <p className="text-xs text-muted-foreground font-mono">{slot.startTime} - {slot.endTime}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-6">
+              <p className="text-muted-foreground text-sm">You haven't set any availability slots yet.</p>
+            </div>
+          )}
+        </div>
+      </section>
+    );
+  };
+
+  const renderSessionHistorySection = () => (
+    <section className="space-y-4">
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        <h2 className="text-lg font-semibold text-foreground">
+          {isSessionsPage ? 'Booked Sessions History' : 'Session History & Reviews'}
+        </h2>
+        <div className="flex items-center gap-3">
+          {!isSessionsPage && (
+            <Button
+              onClick={() => setShowAddSessionDialog(true)}
+              className="bg-rs-accent hover:bg-rs-accent-hover text-white rounded-xl text-xs font-semibold h-9 flex items-center gap-1.5"
+            >
+              <Plus className="w-3.5 h-3.5" /> Manage Availability
+            </Button>
+          )}
+          <select
+            value={historyFilter}
+            onChange={(e) => setHistoryFilter(e.target.value as any)}
+            className="text-sm bg-muted border border-border rounded-xl px-3 py-2 text-foreground focus:outline-none focus:border-rs-accent cursor-pointer h-9"
+          >
+            <option value="all">All Logs</option>
+            <option value="completed">Completed Only</option>
+            <option value="canceled">Canceled Only</option>
+          </select>
+        </div>
+      </div>
+
+      {filteredHistory.length === 0 ? (
+        <div className="bg-card border border-border rounded-2xl p-10 text-center">
+          <p className="text-muted-foreground text-sm">No booked sessions match this filter.</p>
+        </div>
+      ) : (
+        <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border text-start">
+                  <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground text-start">Student</th>
+                  <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground text-start">Date</th>
+                  <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground text-start">Student Rating</th>
+                  <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground text-start">Evaluation Notes</th>
+                  <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground text-start">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {filteredHistory.map((session) => {
+                  const { date } = formatDateTime(session.startTime);
+                  return (
+                    <tr key={session.id} className="hover:bg-muted/40 transition-colors">
+                      <td className="px-5 py-4">
+                        <div className="flex items-center gap-3">
+                          <MentorAvatar name={session.studentName} size="sm" />
+                          <div>
+                            <p className="font-medium text-foreground">{session.studentName}</p>
+                            <p className="text-xs text-muted-foreground font-mono">{session.studentEmail}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-5 py-4 text-muted-foreground whitespace-nowrap font-mono">{date}</td>
+                      <td className="px-5 py-4">
+                        {session.status === 'Completed' && session.rating != null ? (
+                          <div className="flex gap-0.5 text-rs-warning">
+                            {Array.from({ length: 5 }).map((_, i) => (
+                              <Star key={i} className={`w-4 h-4 ${i < (session.rating ?? 0) ? 'fill-current' : 'opacity-20'}`} />
+                            ))}
+                          </div>
+                        ) : (
+                          <span className="text-muted-foreground/30">—</span>
+                        )}
+                        {session.feedback && (
+                          <p className="text-xs text-muted-foreground mt-1 max-w-xs truncate">{session.feedback}</p>
+                        )}
+                      </td>
+                      <td className="px-5 py-4 text-muted-foreground max-w-xs">
+                        {session.evaluationNotes ? (
+                          <p className="text-sm font-medium text-foreground line-clamp-2">{session.evaluationNotes}</p>
+                        ) : (
+                          <span className="text-muted-foreground/35 italic">No evaluation notes added</span>
+                        )}
+                      </td>
+                      <td className="px-5 py-4">
+                        <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-semibold ${
+                          session.status === 'Completed'
+                            ? 'bg-rs-success/10 text-rs-success border border-rs-success/20'
+                            : 'bg-muted text-muted-foreground border border-border'
+                        }`}>
+                          {session.status === 'Completed' ? 'Completed' : 'Cancelled'}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+    </section>
+  );
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -193,15 +373,15 @@ export default function MentorDashboard() {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 min-w-0 bg-background">
+        <main className="flex-1 min-w-0 bg-background overflow-y-auto">
           {/* Header */}
-          <header className="border-b border-border bg-card/45 backdrop-blur-md px-6 md:px-8 py-5 flex items-center justify-between gap-4 flex-wrap">
+          <header className="border-b border-border bg-card/45 backdrop-blur-md px-6 md:px-8 py-5 flex items-center justify-between gap-4 flex-wrap sticky top-0 z-10">
             <div>
               <h1 className="text-2xl font-bold tracking-tight text-foreground">
-                {t('dashboard.welcome', { name: firstName })}
+                {isSessionsPage ? 'My Sessions' : t('dashboard.welcome', { name: firstName })}
               </h1>
               <p className="text-sm text-muted-foreground mt-0.5">
-                Manage your scheduled code reviews and mentor evaluations.
+                {isSessionsPage ? 'Manage all your availability slots and booked sessions.' : 'Manage your scheduled code reviews and mentor evaluations.'}
               </p>
             </div>
             <div className="flex items-center gap-4">
@@ -221,197 +401,121 @@ export default function MentorDashboard() {
               </div>
             )}
 
-            {/* Performance Stats */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-              <div className="bg-card border border-border p-5 rounded-2xl shadow-sm flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-rs-accent/10 flex items-center justify-center text-rs-accent">
-                  <Star className="w-6 h-6 fill-current" />
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">{t('dashboard.stats.avgRating')}</p>
-                  <p className="text-2xl font-bold text-foreground mt-0.5">{stats.avgRating}</p>
-                </div>
-              </div>
+            {!isSessionsPage && (
+              <>
+                {/* Performance Stats */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                  <div className="bg-card border border-border p-5 rounded-2xl shadow-sm flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-rs-accent/10 flex items-center justify-center text-rs-accent">
+                      <Star className="w-6 h-6 fill-current" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">{t('dashboard.stats.avgRating')}</p>
+                      <p className="text-2xl font-bold text-foreground mt-0.5">{stats.avgRating}</p>
+                    </div>
+                  </div>
 
-              <div className="bg-card border border-border p-5 rounded-2xl shadow-sm flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-rs-success/10 flex items-center justify-center text-rs-success">
-                  <Clock className="w-6 h-6" />
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">{t('dashboard.stats.hoursCompleted')}</p>
-                  <p className="text-2xl font-bold text-foreground mt-0.5">{stats.hoursCompleted}h</p>
-                </div>
-              </div>
+                  <div className="bg-card border border-border p-5 rounded-2xl shadow-sm flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-rs-success/10 flex items-center justify-center text-rs-success">
+                      <Clock className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">{t('dashboard.stats.hoursCompleted')}</p>
+                      <p className="text-2xl font-bold text-foreground mt-0.5">{stats.hoursCompleted}h</p>
+                    </div>
+                  </div>
 
-              <div className="bg-card border border-border p-5 rounded-2xl shadow-sm flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-rs-warning/10 flex items-center justify-center text-rs-warning">
-                  <CheckCircle className="w-6 h-6" />
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Total Sessions</p>
-                  <p className="text-2xl font-bold text-foreground mt-0.5">{stats.skillsMastered}</p>
-                </div>
-              </div>
+                  <div className="bg-card border border-border p-5 rounded-2xl shadow-sm flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-rs-warning/10 flex items-center justify-center text-rs-warning">
+                      <CheckCircle className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Total Sessions</p>
+                      <p className="text-2xl font-bold text-foreground mt-0.5">{stats.skillsMastered}</p>
+                    </div>
+                  </div>
 
-              <div className="bg-card border border-border p-5 rounded-2xl shadow-sm flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center text-muted-foreground">
-                  <Calendar className="w-6 h-6" />
+                  <div className="bg-card border border-border p-5 rounded-2xl shadow-sm flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center text-muted-foreground">
+                      <Calendar className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">{t('dashboard.stats.pendingTasks')}</p>
+                      <p className="text-2xl font-bold text-foreground mt-0.5">{stats.pendingTasks}</p>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">{t('dashboard.stats.pendingTasks')}</p>
-                  <p className="text-2xl font-bold text-foreground mt-0.5">{stats.pendingTasks}</p>
-                </div>
-              </div>
-            </div>
 
-            {/* Upcoming Student Sessions */}
-            <section className="space-y-4">
-              <h2 className="text-lg font-semibold text-foreground">Upcoming Student Bookings</h2>
-              {upcomingSessions.length === 0 ? (
-                <div className="bg-card border border-border rounded-2xl p-10 text-center">
-                  <Calendar className="w-12 h-12 text-muted-foreground mx-auto mb-3 opacity-60" />
-                  <p className="text-muted-foreground">No upcoming student sessions booked yet.</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {upcomingSessions.map((session) => {
-                    const startInfo = formatDateTime(session.startTime);
-                    const endInfo = formatDateTime(session.endsAt);
-                    return (
-                      <div key={session.id} className="bg-card border border-border rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow">
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                          <div className="flex items-start gap-4">
-                            <MentorAvatar name={session.studentName} />
-                            <div>
-                              <h3 className="font-semibold text-foreground">{session.studentName}</h3>
-                              <p className="text-xs text-muted-foreground font-mono">{session.studentEmail}</p>
-                              <div className="flex flex-wrap items-center gap-2 mt-2">
-                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-mono font-medium bg-rs-accent/10 text-rs-accent border border-rs-accent/20">
-                                  {startInfo.date}, {startInfo.time} - {endInfo.time}
-                                </span>
-                                <span className="text-xs text-muted-foreground font-mono">{session.duration} mins</span>
+                {/* Upcoming Student Sessions */}
+                <section className="space-y-4">
+                  <h2 className="text-lg font-semibold text-foreground">Upcoming Student Bookings</h2>
+                  {upcomingSessions.length === 0 ? (
+                    <div className="bg-card border border-border rounded-2xl p-10 text-center">
+                      <Calendar className="w-12 h-12 text-muted-foreground mx-auto mb-3 opacity-60" />
+                      <p className="text-muted-foreground">No upcoming student sessions booked yet.</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {upcomingSessions.map((session) => {
+                        const startInfo = formatDateTime(session.startTime);
+                        const endInfo = formatDateTime(session.endsAt);
+                        return (
+                          <div key={session.id} className="bg-card border border-border rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                              <div className="flex items-start gap-4">
+                                <MentorAvatar name={session.studentName} />
+                                <div>
+                                  <h3 className="font-semibold text-foreground">{session.studentName}</h3>
+                                  <p className="text-xs text-muted-foreground font-mono">{session.studentEmail}</p>
+                                  <div className="flex flex-wrap items-center gap-2 mt-2">
+                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-mono font-medium bg-rs-accent/10 text-rs-accent border border-rs-accent/20">
+                                      {startInfo.date}, {startInfo.time} - {endInfo.time}
+                                    </span>
+                                    <span className="text-xs text-muted-foreground font-mono">{session.duration} mins</span>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                {session.meetLink && (
+                                  <a
+                                    href={session.meetLink}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-rs-success hover:bg-rs-success/90 text-white transition-colors flex items-center gap-1.5"
+                                  >
+                                    <Video className="w-3.5 h-3.5" />
+                                    {t('dashboard.upcoming.joinGoogleMeet')}
+                                  </a>
+                                )}
+                                <button
+                                  onClick={() => handleCancelSession(session.id)}
+                                  className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-rs-danger/30 text-rs-danger hover:bg-rs-danger/10 transition-colors"
+                                >
+                                  Cancel Booking
+                                </button>
+                                <button
+                                  onClick={() => setEvaluationSessionId(session.id)}
+                                  className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-rs-accent hover:bg-rs-accent-hover text-white transition-colors"
+                                >
+                                  Complete & Evaluate
+                                </button>
                               </div>
                             </div>
                           </div>
-                          <div className="flex items-center gap-2">
-                            {session.meetLink && (
-                              <a
-                                href={session.meetLink}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-rs-success hover:bg-rs-success/90 text-white transition-colors flex items-center gap-1.5"
-                              >
-                                <Video className="w-3.5 h-3.5" />
-                                {t('dashboard.upcoming.joinGoogleMeet')}
-                              </a>
-                            )}
-                            <button
-                              onClick={() => handleCancelSession(session.id)}
-                              className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-rs-danger/30 text-rs-danger hover:bg-rs-danger/10 transition-colors"
-                            >
-                              Cancel Booking
-                            </button>
-                            <button
-                              onClick={() => setEvaluationSessionId(session.id)}
-                              className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-rs-accent hover:bg-rs-accent-hover text-white transition-colors"
-                            >
-                              Complete & Evaluate
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </section>
+                        );
+                      })}
+                    </div>
+                  )}
+                </section>
+              </>
+            )}
+
+            {/* My Availability Section (Only on My Sessions Page) */}
+            {renderAvailabilitySection()}
 
             {/* Session History & Student Feedback */}
-            <section className="space-y-4">
-              <div className="flex items-center justify-between gap-4 flex-wrap">
-                <h2 className="text-lg font-semibold text-foreground">Session History & Reviews</h2>
-                <select
-                  value={historyFilter}
-                  onChange={(e) => setHistoryFilter(e.target.value as any)}
-                  className="text-sm bg-muted border border-border rounded-xl px-3 py-2 text-foreground focus:outline-none focus:border-rs-accent cursor-pointer"
-                >
-                  <option value="all">All Logs</option>
-                  <option value="completed">Completed Only</option>
-                  <option value="canceled">Canceled Only</option>
-                </select>
-              </div>
-
-              {filteredHistory.length === 0 ? (
-                <div className="bg-card border border-border rounded-2xl p-10 text-center">
-                  <p className="text-muted-foreground text-sm">No session history matches this filter.</p>
-                </div>
-              ) : (
-                <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
-                      <thead>
-                        <tr className="border-b border-border text-start">
-                          <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground text-start">Student</th>
-                          <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground text-start">Date</th>
-                          <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground text-start">Student Rating</th>
-                          <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground text-start">Evaluation Notes</th>
-                          <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground text-start">Status</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-border">
-                        {filteredHistory.map((session) => {
-                          const { date } = formatDateTime(session.startTime);
-                          return (
-                            <tr key={session.id} className="hover:bg-muted/40 transition-colors">
-                              <td className="px-5 py-4">
-                                <div className="flex items-center gap-3">
-                                  <MentorAvatar name={session.studentName} size="sm" />
-                                  <div>
-                                    <p className="font-medium text-foreground">{session.studentName}</p>
-                                    <p className="text-xs text-muted-foreground font-mono">{session.studentEmail}</p>
-                                  </div>
-                                </div>
-                              </td>
-                              <td className="px-5 py-4 text-muted-foreground whitespace-nowrap font-mono">{date}</td>
-                              <td className="px-5 py-4">
-                                {session.status === 'Completed' && session.rating != null ? (
-                                  <div className="flex gap-0.5 text-rs-warning">
-                                    {Array.from({ length: 5 }).map((_, i) => (
-                                      <Star key={i} className={`w-4 h-4 ${i < (session.rating ?? 0) ? 'fill-current' : 'opacity-20'}`} />
-                                    ))}
-                                  </div>
-                                ) : (
-                                  <span className="text-muted-foreground/30">—</span>
-                                )}
-                                {session.feedback && (
-                                  <p className="text-xs text-muted-foreground mt-1 max-w-xs truncate">{session.feedback}</p>
-                                )}
-                              </td>
-                              <td className="px-5 py-4 text-muted-foreground max-w-xs">
-                                {session.evaluationNotes ? (
-                                  <p className="text-sm font-medium text-foreground line-clamp-2">{session.evaluationNotes}</p>
-                                ) : (
-                                  <span className="text-muted-foreground/35 italic">No evaluation notes added</span>
-                                )}
-                              </td>
-                              <td className="px-5 py-4">
-                                <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-semibold ${
-                                  session.status === 'Completed'
-                                    ? 'bg-rs-success/10 text-rs-success border border-rs-success/20'
-                                    : 'bg-muted text-muted-foreground border border-border'
-                                }`}>
-                                  {session.status === 'Completed' ? 'Completed' : 'Cancelled'}
-                                </span>
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              )}
-            </section>
+            {renderSessionHistorySection()}
+            
           </div>
         </main>
       </div>
@@ -457,6 +561,14 @@ export default function MentorDashboard() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Add Session Dialog */}
+      {showAddSessionDialog && (
+        <AvailabilityDialog onClose={() => {
+          setShowAddSessionDialog(false);
+          fetchProfile(); // Refetch profile to update availabilities view
+        }} />
       )}
     </div>
   );
