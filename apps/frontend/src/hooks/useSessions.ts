@@ -11,6 +11,7 @@ export interface Session {
   rating?: number | null;
   feedback?: string | null;
   evaluationNotes?: string | null;
+  meetLink?: string | null;
   mentor: {
     id: string;
     name: string;
@@ -112,5 +113,20 @@ export function useSessionAudit(id: string) {
       return data;
     },
     enabled: !!id,
+  });
+}
+
+export function useSessionMeetLink() {
+  const queryClient = useQueryClient();
+  return useMutation<{ meetLink: string | null }, Error, string>({
+    mutationFn: async (sessionId) => {
+      const { data } = await apiClient.get<{ meetLink: string | null }>(
+        `/sessions/${sessionId}/meet-link`
+      );
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['sessions'] });
+    },
   });
 }

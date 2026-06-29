@@ -95,6 +95,7 @@ model ReviewSession {
   rating    Float?
   feedback  String?
   evaluationNotes String? @map("evaluation_notes")
+  meetLink  String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

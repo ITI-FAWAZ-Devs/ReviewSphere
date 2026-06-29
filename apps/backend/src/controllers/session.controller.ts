@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { prisma } from '@reviewsphere/db';
 import { z } from 'zod';
+import { GoogleMeetService } from '../services/google-meet.service.js';
 
 const bookSessionSchema = z.object({
   mentor_id: z.string().min(1, 'mentor_id is required'),
@@ -245,7 +246,45 @@ export async function bookSession(req: Request, res: Response, next: NextFunctio
       return sess;
     });
 
-    res.status(201).json(session);
+    let meetLink: string | null = null;
+    try {
+      const mentorWithUser = await prisma.mentorProfile.findUnique({
+        where: { id: mentor_id },
+        include: { user: { select: { email: true } } },
+      });
+      const studentWithUser = await prisma.studentProfile.findUnique({
+        where: { id: student.id },
+        include: { user: { select: { email: true } } },
+      });
+
+      const attendees: string[] = [];
+      if (mentorWithUser?.user?.email) attendees.push(mentorWithUser.user.email);
+      if (studentWithUser?.user?.email) attendees.push(studentWithUser.user.email);
+
+      meetLink = await GoogleMeetService.createMeeting({
+        sessionId: session.id,
+        title: `Mentorship Session - ${mentorWithUser?.name ?? 'Mentor'} & ${studentWithUser?.name ?? 'Student'}`,
+        description: `Review session booked on ReviewSphere.\nDescription: ${parsed.data.description ?? 'No description provided.'}`,
+        startsAt: session.startsAt,
+        endsAt: session.endsAt,
+        attendees,
+      });
+
+      if (meetLink) {
+        await prisma.reviewSession.update({
+          where: { id: session.id },
+          data: { meetLink },
+        });
+      }
+    } catch (error) {
+      console.warn('Google Meet link generation failed on bookSession. Fallback to null meetLink:', error);
+    }
+
+    const bookedSession = await prisma.reviewSession.findUnique({
+      where: { id: session.id },
+    });
+
+    res.status(201).json(bookedSession ?? session);
   } catch (err: any) {
     if (err.message === 'OVERLAP') {
       res.status(409).json({ message: 'This slot is already booked. Please choose another time.' });
@@ -291,6 +330,75 @@ export async function getSessionAudit(req: Request, res: Response, next: NextFun
     });
 
     res.status(200).json(logs);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getSessionMeetLink(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const id = req.params['id'] as string;
+
+    const session = await prisma.reviewSession.findUnique({
+      where: { id },
+      include: {
+        mentor: {
+          include: {
+            user: { select: { email: true } },
+          },
+        },
+        student: {
+          include: {
+            user: { select: { email: true } },
+          },
+        },
+      },
+    });
+
+    if (!session) {
+      res.status(404).json({ message: 'Session not found' });
+      return;
+    }
+
+    const reqUser = req.user as any;
+    const isAuthorized =
+      session.mentor.userId === reqUser.sub ||
+      session.student.userId === reqUser.sub ||
+      reqUser.role === 'ADMIN';
+
+    if (!isAuthorized) {
+      res.status(403).json({ message: 'Forbidden: you are not authorized to view the link for this session' });
+      return;
+    }
+
+    let meetLink = session.meetLink;
+    if (!meetLink) {
+      try {
+        const attendees: string[] = [];
+        if (session.mentor.user.email) attendees.push(session.mentor.user.email);
+        if (session.student.user.email) attendees.push(session.student.user.email);
+
+        meetLink = await GoogleMeetService.createMeeting({
+          sessionId: session.id,
+          title: `Mentorship Session - ${session.mentor.name ?? 'Mentor'} & ${session.student.name ?? 'Student'}`,
+          description: `Review session booked on ReviewSphere.`,
+          startsAt: session.startsAt,
+          endsAt: session.endsAt,
+          attendees,
+        });
+
+        if (meetLink) {
+          await prisma.reviewSession.update({
+            where: { id: session.id },
+            data: { meetLink },
+          });
+        }
+      } catch (err) {
+        console.warn('Google Meet link generation failed on getSessionMeetLink retry. Fallback to null meetLink:', err);
+      }
+    }
+
+    res.status(200).json({ meetLink });
   } catch (err) {
     next(err);
   }

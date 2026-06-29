@@ -59,6 +59,7 @@ export interface ReviewSessionDto {
   status: string;
   startsAt: Date;
   endsAt: Date;
+  meetLink?: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
