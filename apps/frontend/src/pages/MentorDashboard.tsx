@@ -8,9 +8,6 @@ import {
   Settings,
   LayoutDashboard,
   LogOut,
-  MessageSquare,
-  Wallet,
-  HelpCircle,
   AlertCircle,
   CheckCircle,
   Loader2,
@@ -38,9 +35,6 @@ export default function MentorDashboard() {
   const SIDEBAR_LINKS = useMemo(() => [
     { to: '/dashboard/mentor', label: t('dashboard.sidebar.dashboard'), icon: LayoutDashboard },
     { to: '/profile/edit', label: t('dashboard.sidebar.settings'), icon: Settings },
-    { to: '#', label: t('dashboard.sidebar.messages'), icon: MessageSquare, disabled: true },
-    { to: '#', label: t('dashboard.sidebar.payments'), icon: Wallet, disabled: true },
-    { to: '#', label: t('dashboard.sidebar.helpCenter'), icon: HelpCircle, disabled: true },
   ], [t]);
 
   const computeDuration = (startsAt: string, endsAt: string) =>
@@ -131,6 +125,7 @@ export default function MentorDashboard() {
     const date = new Date(dateTime);
     return {
       date: date.toLocaleDateString(i18n.language === 'ar' ? 'ar-EG' : 'en-US', {
+        weekday: 'short',
         month: 'short',
         day: 'numeric',
         year: 'numeric',
@@ -167,15 +162,7 @@ export default function MentorDashboard() {
                 {SIDEBAR_LINKS.map((link) => {
                   const Icon = link.icon;
                   const isActive = location.pathname === link.to;
-                  return link.disabled ? (
-                    <span
-                      key={link.label}
-                      className="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-xl text-muted-foreground/45 cursor-not-allowed"
-                    >
-                      <Icon className="w-4 h-4" />
-                      {link.label}
-                    </span>
-                  ) : (
+                  return (
                     <Link
                       key={link.to}
                       to={link.to}

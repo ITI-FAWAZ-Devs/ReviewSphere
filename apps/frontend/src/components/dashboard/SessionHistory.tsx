@@ -13,6 +13,7 @@ interface Session {
   endsAt: string;
   rating?: number | null;
   feedback?: string | null;
+  evaluationNotes?: string | null;
   mentorName: string;
   mentorAvatar?: string;
   title: string;
@@ -54,6 +55,7 @@ export default function SessionHistory({
     const date = new Date(dateTime);
     return {
       date: date.toLocaleDateString(i18n.language === 'ar' ? 'ar-EG' : 'en-US', {
+        weekday: 'short',
         month: 'short',
         day: 'numeric',
         year: 'numeric',
@@ -224,6 +226,13 @@ export default function SessionHistory({
                         <tr>
                           <td colSpan={5} className="px-5 pb-5 pt-0">
                             <div className="bg-muted/50 border border-border rounded-xl p-4 space-y-4">
+                              {session.evaluationNotes && (
+                                <div className="space-y-2 pb-4 border-b border-border">
+                                  <h4 className="text-xs font-semibold text-foreground uppercase tracking-wider">{t('dashboard.history.evaluationNotes', 'Evaluation Notes')}</h4>
+                                  <p className="text-sm text-foreground whitespace-pre-wrap">{session.evaluationNotes}</p>
+                                </div>
+                              )}
+                              
                               {hasExistingFeedback && !isEditingFeedback ? (
                                 <div className="space-y-3">
                                   <div className="flex items-center gap-2">
