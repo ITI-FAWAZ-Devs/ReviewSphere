@@ -4,14 +4,11 @@ import { useTranslation } from 'react-i18next';
 import {
   AlertCircle,
   Bell,
-  HelpCircle,
   LayoutDashboard,
   LogOut,
-  MessageSquare,
   Search,
   Settings,
   Video,
-  Wallet,
   Loader2,
 } from 'lucide-react';
 import { toast } from '@/lib/toast';
@@ -40,6 +37,7 @@ interface ApiSession {
   endsAt: string;
   rating?: number | null;
   feedback?: string | null;
+  evaluationNotes?: string | null;
   mentor: MentorInfo;
 }
 
@@ -81,11 +79,8 @@ export default function StudentDashboard() {
   const SIDEBAR_LINKS = useMemo(() => [
     { to: '/dashboard/student', label: t('dashboard.sidebar.dashboard'), icon: LayoutDashboard },
     { to: '/mentors', label: t('dashboard.sidebar.findMentors'), icon: Search },
-    { to: '#', label: t('dashboard.sidebar.messages'), icon: MessageSquare, disabled: true },
     { to: '/dashboard/student', label: t('dashboard.sidebar.sessions'), icon: Video },
-    { to: '#', label: t('dashboard.sidebar.payments'), icon: Wallet, disabled: true },
     { to: '/profile/edit', label: t('dashboard.sidebar.settings'), icon: Settings },
-    { to: '#', label: t('dashboard.sidebar.helpCenter'), icon: HelpCircle, disabled: true },
   ], [t]);
 
   const computeDuration = (startsAt: string, endsAt: string) =>
@@ -231,23 +226,13 @@ export default function StudentDashboard() {
           </div>
 
           <nav className="flex-1 px-3 py-4 space-y-1">
-            {SIDEBAR_LINKS.map(({ to, label, icon: Icon, disabled }) => {
-              const active = !disabled && location.pathname === to;
+            {SIDEBAR_LINKS.map(({ to, label, icon: Icon }) => {
+              const active = location.pathname === to;
               const baseClass =
                 'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors relative';
               const activeClass =
                 'bg-rs-accent/10 text-rs-accent border-e-2 border-rs-accent';
               const inactiveClass = 'text-muted-foreground hover:text-foreground hover:bg-muted/40';
-              const disabledClass = 'text-muted-foreground/40 cursor-not-allowed opacity-60';
-
-              if (disabled) {
-                return (
-                  <span key={label} className={`${baseClass} ${disabledClass}`}>
-                    <Icon className="w-4 h-4" />
-                    {label}
-                  </span>
-                );
-              }
 
               return (
                 <Link
@@ -363,22 +348,7 @@ export default function StudentDashboard() {
                   </button>
                 </div>
 
-                {/* Find mentors CTA */}
-                <div className="relative overflow-hidden bg-gradient-to-br from-rs-accent to-rs-accent-hover rounded-2xl p-6 shadow-md">
-                  <Search className="absolute -right-4 -bottom-4 w-28 h-28 text-white/10" />
-                  <h3 className="text-lg font-semibold text-white relative z-10">
-                    {t('dashboard.cta.title')}
-                  </h3>
-                  <p className="text-sm text-white/80 mt-2 relative z-10">
-                    {t('dashboard.cta.subtitle')}
-                  </p>
-                  <Link
-                    to="/mentors"
-                    className="inline-block mt-4 px-4 py-2 text-sm font-semibold rounded-xl bg-white text-rs-accent hover:bg-white/95 transition-colors relative z-10"
-                  >
-                    {t('dashboard.cta.button')}
-                  </Link>
-                </div>
+
               </aside>
             </div>
 

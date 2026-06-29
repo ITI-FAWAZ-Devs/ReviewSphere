@@ -44,6 +44,7 @@ export default function UpcomingSessions({ sessions, onCancel }: UpcomingSession
     if (isSameDay(date, now)) return t('dashboard.upcoming.today');
     if (isSameDay(date, tomorrow)) return t('dashboard.upcoming.tomorrow');
     return date.toLocaleDateString(i18n.language === 'ar' ? 'ar-EG' : 'en-US', {
+      weekday: 'short',
       month: 'short',
       day: 'numeric',
     });

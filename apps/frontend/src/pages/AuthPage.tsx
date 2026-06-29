@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Navigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Eye, EyeOff, GraduationCap, Lightbulb } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -18,8 +18,12 @@ type AuthPageProps = {
 };
 
 export default function AuthPage({ mode = 'login' }: AuthPageProps) {
-  const { login } = useAuth();
+  const { login, user } = useAuth();
   const navigate = useNavigate();
+
+  if (user) {
+    return <Navigate to="/" replace />;
+  }
   const { t } = useTranslation();
   const loginMutation = useLogin();
   const registerMutation = useRegister();
@@ -53,7 +57,7 @@ export default function AuthPage({ mode = 'login' }: AuthPageProps) {
     loginMutation.mutate({ email, password }, {
       onSuccess: (data) => {
         login(data.user, data.token);
-        navigate(data.user.role === 'STUDENT' ? '/dashboard' : '/mentors');
+        navigate('/dashboard');
       },
     });
   }
@@ -68,7 +72,7 @@ export default function AuthPage({ mode = 'login' }: AuthPageProps) {
     registerMutation.mutate(payload, {
       onSuccess: (data) => {
         login(data.user, data.token);
-        navigate(data.user.role === 'STUDENT' ? '/dashboard' : '/mentors');
+        navigate('/dashboard');
       },
     });
   }
