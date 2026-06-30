@@ -155,12 +155,37 @@ export async function submitFeedback(req: Request, res: Response, next: NextFunc
       return;
     }
 
-    const updated = await prisma.reviewSession.update({
-      where: { id },
-      data: {
-        rating: parsed.data.rating,
-        feedback: parsed.data.feedback,
-      },
+    const updated = await prisma.$transaction(async (tx) => {
+      // 1. Save rating + feedback on the session
+      const updatedSession = await tx.reviewSession.update({
+        where: { id },
+        data: {
+          rating: parsed.data.rating,
+          feedback: parsed.data.feedback,
+        },
+        select: { mentorId: true, rating: true, feedback: true, id: true, status: true, studentId: true, startsAt: true, endsAt: true, meetLink: true, evaluationNotes: true, createdAt: true, updatedAt: true },
+      });
+
+      // 2. Recalculate mentor's average rating across all rated completed sessions
+      const ratedSessions = await tx.reviewSession.findMany({
+        where: {
+          mentorId: updatedSession.mentorId,
+          status: 'Completed',
+          rating: { not: null },
+        },
+        select: { rating: true },
+      });
+
+      const totalRating = ratedSessions.reduce((sum, s) => sum + (s.rating ?? 0), 0);
+      const newAverage = ratedSessions.length > 0 ? totalRating / ratedSessions.length : 0;
+
+      // 3. Persist new average on MentorProfile
+      await tx.mentorProfile.update({
+        where: { id: updatedSession.mentorId },
+        data: { averageRating: newAverage },
+      });
+
+      return updatedSession;
     });
 
     res.status(200).json(updated);

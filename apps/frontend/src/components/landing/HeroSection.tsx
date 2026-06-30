@@ -1,10 +1,13 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
-import { Zap, ArrowRight } from 'lucide-react';
+import { Zap, ArrowRight, LayoutDashboard } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
 
 export function HeroSection() {
   const { t } = useTranslation();
+  const { user } = useAuth();
+  const dashboardRoute = user?.role === 'MENTOR' ? '/dashboard/mentor' : user?.role === 'ADMIN' ? '/admin' : '/dashboard/student';
 
   return (
     <section className="relative min-h-[85vh] flex items-center justify-center pt-8 overflow-hidden bg-background">
@@ -28,27 +31,43 @@ export function HeroSection() {
           </p>
 
           <div className="flex flex-wrap gap-4 pt-2">
-            <Button
-              asChild
-              size="lg"
-              className="bg-rs-accent hover:bg-rs-accent-hover text-white rounded-xl text-base h-12 px-8 font-semibold transition-all duration-150"
-            >
-              <Link to="/mentors" className="flex items-center gap-1.5">
-                {t('landing.hero.joinStudent')}
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-            </Button>
+            {user ? (
+              <Button
+                asChild
+                size="lg"
+                className="bg-rs-accent hover:bg-rs-accent-hover text-white rounded-xl text-base h-12 px-8 font-semibold transition-all duration-150"
+              >
+                <Link to={dashboardRoute} className="flex items-center gap-1.5">
+                  <LayoutDashboard className="w-4 h-4" />
+                  Go to Dashboard
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+              </Button>
+            ) : (
+              <>
+                <Button
+                  asChild
+                  size="lg"
+                  className="bg-rs-accent hover:bg-rs-accent-hover text-white rounded-xl text-base h-12 px-8 font-semibold transition-all duration-150"
+                >
+                  <Link to="/mentors" className="flex items-center gap-1.5">
+                    {t('landing.hero.joinStudent')}
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
+                </Button>
 
-            <Button
-              asChild
-              variant="outline"
-              size="lg"
-              className="bg-card border border-border text-foreground rounded-xl text-base h-12 px-8 hover:bg-muted font-semibold"
-            >
-              <Link to="/register">
-                {t('landing.hero.joinMentor')}
-              </Link>
-            </Button>
+                <Button
+                  asChild
+                  variant="outline"
+                  size="lg"
+                  className="bg-card border border-border text-foreground rounded-xl text-base h-12 px-8 hover:bg-muted font-semibold"
+                >
+                  <Link to="/register">
+                    {t('landing.hero.joinMentor')}
+                  </Link>
+                </Button>
+              </>
+            )}
           </div>
         </div>
 

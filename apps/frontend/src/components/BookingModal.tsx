@@ -14,6 +14,7 @@ interface BookingModalProps {
   booking: boolean;
   onConfirm: () => void;
   onCancel: () => void;
+  formatTime?: (hhmm: string) => string;
 }
 
 export default function BookingModal({
@@ -23,8 +24,10 @@ export default function BookingModal({
   booking,
   onConfirm,
   onCancel,
+  formatTime,
 }: BookingModalProps) {
   const { t } = useTranslation();
+  const fmt = formatTime ?? ((t: string) => t);
 
   return (
     <div
@@ -49,7 +52,7 @@ export default function BookingModal({
           </p>
           <p>
             <span className="text-muted-foreground">{t('mentor.booking.time')}</span>{' '}
-            {slot.start_time} - {slot.end_time}
+            {fmt(slot.start_time)} - {fmt(slot.end_time)}
           </p>
         </div>
         <div className="flex gap-3">

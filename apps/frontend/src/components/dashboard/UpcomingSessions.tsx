@@ -35,11 +35,11 @@ export default function UpcomingSessions({
 }: UpcomingSessionsProps) {
   const { t, i18n } = useTranslation();
 
-  const isSameDay = (a: Date, b: Date) => {
+  const isSameUTCDay = (a: Date, b: Date) => {
     return (
-      a.getFullYear() === b.getFullYear() &&
-      a.getMonth() === b.getMonth() &&
-      a.getDate() === b.getDate()
+      a.getUTCFullYear() === b.getUTCFullYear() &&
+      a.getUTCMonth() === b.getUTCMonth() &&
+      a.getUTCDate() === b.getUTCDate()
     );
   };
 
@@ -47,22 +47,26 @@ export default function UpcomingSessions({
     const date = new Date(dateTime);
     const now = new Date();
     const tomorrow = new Date(now);
-    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
 
-    if (isSameDay(date, now)) return t('dashboard.upcoming.today');
-    if (isSameDay(date, tomorrow)) return t('dashboard.upcoming.tomorrow');
+    if (isSameUTCDay(date, now)) return t('dashboard.upcoming.today');
+    if (isSameUTCDay(date, tomorrow)) return t('dashboard.upcoming.tomorrow');
     return date.toLocaleDateString(i18n.language === 'ar' ? 'ar-EG' : 'en-US', {
       weekday: 'short',
       month: 'short',
       day: 'numeric',
+      timeZone: 'UTC',
     });
   };
 
+  /** Format a stored UTC ISO string as "h:mm AM/PM" */
   const formatDbTime = (isoString: string) => {
     const d = new Date(isoString);
-    const hh = String(d.getUTCHours()).padStart(2, '0');
-    const mm = String(d.getUTCMinutes()).padStart(2, '0');
-    return `${hh}:${mm}`;
+    const hour = d.getUTCHours();
+    const minute = d.getUTCMinutes();
+    const period = hour >= 12 ? 'PM' : 'AM';
+    const h12 = hour % 12 === 0 ? 12 : hour % 12;
+    return `${h12}:${String(minute).padStart(2, '0')} ${period}`;
   };
 
   return (
@@ -72,12 +76,12 @@ export default function UpcomingSessions({
           <Calendar className="w-5 h-5 text-rs-accent" />
           {t('dashboard.upcoming.title')}
         </h2>
-        <button
-          type="button"
+        <Link
+          to="/dashboard/student/sessions"
           className="text-sm text-rs-accent hover:text-rs-accent-hover font-semibold transition-colors"
         >
           {t('dashboard.upcoming.viewCalendar')}
-        </button>
+        </Link>
       </div>
 
       {sessions.length === 0 ? (

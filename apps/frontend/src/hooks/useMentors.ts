@@ -28,6 +28,16 @@ export interface Mentor {
   createdAt: string;
   user: MentorUser;
   stack: MentorStack;
+  sessions?: {
+    id: string;
+    rating: number;
+    feedback: string | null;
+    createdAt: string;
+    student: {
+      name: string;
+      avatarUrl: string | null;
+    };
+  }[];
 }
 
 export interface Pagination {

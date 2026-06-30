@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Star, CheckCircle, Calendar as CalendarIcon, Clock, ArrowLeft, GraduationCap, MapPin, Code2, Video, Sparkles, Award, ShieldCheck } from 'lucide-react';
+import { Star, CheckCircle, Calendar as CalendarIcon, Clock, ArrowLeft, GraduationCap, MapPin, Code2, Video, Sparkles, Award, ShieldCheck, Info } from 'lucide-react';
 import apiClient from '@/lib/axios';
 import { toast } from '@/lib/toast';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import BookingModal from '@/components/BookingModal';
 import BookingSuccessModal from '@/components/BookingSuccessModal';
+import { useAuth } from '@/context/AuthContext';
 
 interface BookedSession {
   meetLink?: string | null;
@@ -29,6 +30,16 @@ interface Mentor {
   averageRating: number;
   hourlyRate: number;
   stack: Stack;
+  sessions?: {
+    id: string;
+    rating: number;
+    feedback: string | null;
+    createdAt: string;
+    student: {
+      name: string;
+      avatarUrl: string | null;
+    };
+  }[];
 }
 
 interface Slot {
@@ -67,10 +78,22 @@ function ProfileNotFound() {
   );
 }
 
+/** Convert "HH:MM" (UTC slot string) to "h:mm AM/PM" for display */
+function formatSlotTime(hhmm: string): string {
+  const [hourStr, minuteStr] = hhmm.split(':');
+  const hour = parseInt(hourStr, 10);
+  const minute = parseInt(minuteStr, 10);
+  const period = hour >= 12 ? 'PM' : 'AM';
+  const h12 = hour % 12 === 0 ? 12 : hour % 12;
+  return `${h12}:${String(minute).padStart(2, '0')} ${period}`;
+}
+
 /* ── Main Component ─────────────────────────────────────────── */
 export default function MentorProfilePage() {
   const { id } = useParams<{ id: string }>();
   const { t } = useTranslation();
+  const { user } = useAuth();
+  const isMentor = user?.role === 'MENTOR';
 
   const [mentor, setMentor] = useState<Mentor | null>(null);
   const [slots, setSlots] = useState<Slot[]>([]);
@@ -242,6 +265,48 @@ export default function MentorProfilePage() {
                   {mentor.bio}
                 </div>
               </div>
+              {/* Reviews Section */}
+              <div className="bg-card/40 backdrop-blur-xl border border-border rounded-[2.5rem] p-8 md:p-10 shadow-lg mt-8">
+                <h3 className="text-2xl font-extrabold text-foreground mb-6 flex items-center gap-3">
+                  <Star className="w-6 h-6 text-rs-accent fill-current" /> {t('dashboard.history.evaluation')}
+                </h3>
+                
+                {mentor.sessions && mentor.sessions.length > 0 ? (
+                  <div className="space-y-6">
+                    {mentor.sessions.map((session) => (
+                      <div key={session.id} className="p-6 rounded-2xl bg-background border border-border shadow-sm">
+                        <div className="flex items-start justify-between gap-4 mb-4">
+                          <div className="flex items-center gap-4">
+                            {session.student.avatarUrl ? (
+                              <img src={session.student.avatarUrl} alt={session.student.name} className="w-12 h-12 rounded-full object-cover ring-2 ring-border" />
+                            ) : (
+                              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-rs-accent to-rs-accent/60 flex items-center justify-center text-white font-bold">
+                                {session.student.name.charAt(0).toUpperCase()}
+                              </div>
+                            )}
+                            <div>
+                              <p className="font-bold text-foreground">{session.student.name}</p>
+                              <p className="text-xs text-muted-foreground">{new Date(session.createdAt).toLocaleDateString()}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-1 bg-muted px-3 py-1.5 rounded-full border border-border">
+                            <span className="font-bold text-sm text-foreground">{session.rating.toFixed(1)}</span>
+                            <Star className="w-3.5 h-3.5 text-rs-warning fill-current" />
+                          </div>
+                        </div>
+                        {session.feedback && (
+                          <p className="text-sm text-muted-foreground leading-relaxed">"{session.feedback}"</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-10 bg-muted/30 rounded-3xl border border-dashed border-border">
+                    <Star className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
+                    <p className="text-muted-foreground font-medium">No reviews yet for this mentor.</p>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* RIGHT COLUMN: Booking Widget (Span 5) */}
@@ -285,7 +350,17 @@ export default function MentorProfilePage() {
                         <Clock className="w-4 h-4 text-rs-accent" /> Available Times
                       </label>
                       
-                      {loadingSlots ? (
+                      {isMentor ? (
+                        <div className="flex flex-col items-center justify-center py-10 px-4 border-2 border-dashed border-rs-accent/30 rounded-3xl bg-rs-accent/5">
+                          <Info className="w-8 h-8 text-rs-accent/60 mb-3" />
+                          <p className="text-sm font-bold text-foreground text-center">
+                            Mentors cannot book sessions
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-1 text-center">
+                            Only students can book mentorship sessions.
+                          </p>
+                        </div>
+                      ) : loadingSlots ? (
                         <div className="grid grid-cols-2 gap-3">
                           {Array.from({ length: 6 }).map((_, i) => (
                             <div key={i} className="h-14 bg-muted rounded-2xl animate-pulse" />
@@ -300,7 +375,7 @@ export default function MentorProfilePage() {
                               className="group relative flex items-center justify-center py-4 px-4 rounded-2xl border-2 border-border bg-background hover:border-rs-accent hover:bg-rs-accent/10 transition-all text-sm font-extrabold text-foreground overflow-hidden shadow-sm"
                             >
                               <span className="relative z-10 flex items-center gap-2">
-                                {slot.start_time}
+                                {formatSlotTime(slot.start_time)}
                               </span>
                             </button>
                           ))}
@@ -337,7 +412,7 @@ export default function MentorProfilePage() {
       </div>
 
       {/* Booking Confirmation Modal */}
-      {selectedSlot && mentor && (
+      {selectedSlot && mentor && !isMentor && (
         <BookingModal
           mentorName={mentor.name}
           date={date}
@@ -345,6 +420,7 @@ export default function MentorProfilePage() {
           booking={booking}
           onConfirm={confirmBooking}
           onCancel={() => !booking && setSelectedSlot(null)}
+          formatTime={formatSlotTime}
         />
       )}
 
@@ -352,8 +428,8 @@ export default function MentorProfilePage() {
         <BookingSuccessModal
           mentorName={mentor.name}
           date={date}
-          startTime={bookedSession.slot.start_time}
-          endTime={bookedSession.slot.end_time}
+          startTime={formatSlotTime(bookedSession.slot.start_time)}
+          endTime={formatSlotTime(bookedSession.slot.end_time)}
           meetLink={bookedSession.meetLink}
           onClose={() => setBookedSession(null)}
         />

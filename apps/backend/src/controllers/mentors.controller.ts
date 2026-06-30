@@ -79,12 +79,12 @@ export async function listMentors(req: Request, res: Response, next: NextFunctio
       void term; // suppress unused-var warning; Prisma uses `contains` not raw LIKE
     }
 
-    if (min_price || max_price) {
-      where.hourlyRate = {
-        ...(min_price ? { gte: parseFloat(min_price) } : {}),
-        ...(max_price ? { lte: parseFloat(max_price) } : {}),
-      };
-    }
+    // Always exclude mentors who haven't set a rate (hourlyRate = 0)
+    where.hourlyRate = {
+      gt: 0,
+      ...(min_price ? { gte: parseFloat(min_price) } : {}),
+      ...(max_price ? { lte: parseFloat(max_price) } : {}),
+    };
 
     if (available === 'true') {
       where.isAvailableNow = true;
@@ -147,6 +147,18 @@ export async function getMentor(req: Request, res: Response, next: NextFunction)
       include: {
         user: { select: { id: true, email: true } },
         stack: { select: { id: true, name: true } },
+        sessions: {
+          where: {
+            status: 'Completed',
+            rating: { not: null },
+          },
+          include: {
+            student: {
+              select: { name: true, avatarUrl: true },
+            },
+          },
+          orderBy: { createdAt: 'desc' },
+        },
       },
     });
 
@@ -193,10 +205,12 @@ export async function getMentorAvailability(req: Request, res: Response, next: N
     const startOfDay = new Date(Date.UTC(year, month - 1, day, 0, 0, 0));
     const endOfDay = new Date(Date.UTC(year, month - 1, day, 23, 59, 59, 999));
 
+    // Block slots for any session that isn't explicitly canceled —
+    // both 'Scheduled' (in progress) and 'Completed' (already used) occupy the time.
     const bookedSessions = await prisma.reviewSession.findMany({
       where: {
         mentorId,
-        status: 'Scheduled',
+        status: { notIn: ['Canceled', 'Cancelled'] },
         startsAt: {
           gte: startOfDay,
           lte: endOfDay,

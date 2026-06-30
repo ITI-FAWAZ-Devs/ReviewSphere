@@ -16,6 +16,7 @@ const MENTORS = [
     name: 'Maya V.',
     role: 'Senior UX Lead',
     tags: ['Figma', 'Design Systems'],
+    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuA5B1Ji6BvHUze79BkS3uDp2I3XVMvfPn2dXQKNTiqR1d1aejT5RVwdm8I6sYUCqsvaCsukvk0tADJ-HnXqT6xRX5XUuxs3m9JSYQ0jFadP4ry60WZzzbXoCAPLMPwSoBL4o8-iWLWfKR6vOQtdGO1CBKZGnAjabi4hny5AvYnigw8byxrF8CBfNYakB7PMHdQaH6VqX_byuYKbOwD69c3zOgAtBSFLcNlfIuKRHHZNRQjeRnrOmwDoChFIlt8PbO3vx9yDyq2CTyJk',
     icon: true,
   },
   {

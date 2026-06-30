@@ -36,6 +36,7 @@ const updateProfileSchema = z.object({
   hourlyRate: z.number().nonnegative().optional(),
   stack_id: z.string().min(1, 'Stack is required').optional(),
   stackId: z.string().min(1, 'Stack is required').optional(),
+  avatar_url: z.string().optional(),
 });
 
 export async function register(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -71,13 +72,13 @@ export async function register(req: Request, res: Response, next: NextFunction):
           email: true,
           role: true,
           createdAt: true,
-          studentProfile: { select: { name: true } },
+          studentProfile: { select: { name: true, avatarUrl: true } },
         },
       });
 
       const token = signToken({ sub: user.id, role: user.role });
       res.status(201).json({
-        user: { id: user.id, email: user.email, role: user.role, name: user.studentProfile?.name, createdAt: user.createdAt },
+        user: { id: user.id, email: user.email, role: user.role, name: user.studentProfile?.name, avatarUrl: user.studentProfile?.avatarUrl, createdAt: user.createdAt },
         token,
       });
       return;
@@ -106,13 +107,13 @@ export async function register(req: Request, res: Response, next: NextFunction):
         email: true,
         role: true,
         createdAt: true,
-        mentorProfile: { select: { name: true, title: true, isVerified: true } },
+        mentorProfile: { select: { name: true, title: true, isVerified: true, avatarUrl: true } },
       },
     });
 
     const token = signToken({ sub: user.id, role: user.role });
     res.status(201).json({
-      user: { id: user.id, email: user.email, role: user.role, name: user.mentorProfile?.name, createdAt: user.createdAt },
+      user: { id: user.id, email: user.email, role: user.role, name: user.mentorProfile?.name, avatarUrl: user.mentorProfile?.avatarUrl, createdAt: user.createdAt },
       token,
     });
   } catch (err) {
@@ -133,8 +134,8 @@ export async function login(req: Request, res: Response, next: NextFunction): Pr
     const user = await prisma.user.findUnique({
       where: { email },
       include: {
-        studentProfile: { select: { name: true } },
-        mentorProfile: { select: { name: true } },
+        studentProfile: { select: { name: true, avatarUrl: true } },
+        mentorProfile: { select: { name: true, avatarUrl: true } },
       },
     });
 
@@ -155,10 +156,11 @@ export async function login(req: Request, res: Response, next: NextFunction): Pr
     }
 
     const name = user.studentProfile?.name ?? user.mentorProfile?.name ?? '';
+    const avatarUrl = user.studentProfile?.avatarUrl ?? user.mentorProfile?.avatarUrl ?? null;
     const token = signToken({ sub: user.id, role: user.role });
 
     res.json({
-      user: { id: user.id, email: user.email, role: user.role, name, createdAt: user.createdAt },
+      user: { id: user.id, email: user.email, role: user.role, name, avatarUrl, createdAt: user.createdAt },
       token,
     });
   } catch (err) {
@@ -181,7 +183,7 @@ export async function getProfile(req: Request, res: Response, next: NextFunction
         role: true,
         createdAt: true,
         studentProfile: {
-          select: { name: true },
+          select: { name: true, avatarUrl: true },
         },
         mentorProfile: {
           select: {
@@ -217,11 +219,13 @@ export async function getProfile(req: Request, res: Response, next: NextFunction
     }
 
     const name = user.studentProfile?.name ?? user.mentorProfile?.name ?? '';
+    const avatarUrl = user.studentProfile?.avatarUrl ?? user.mentorProfile?.avatarUrl ?? null;
     res.json({
       id: user.id,
       email: user.email,
       role: user.role,
       name,
+      avatarUrl,
       createdAt: user.createdAt,
       studentProfile: user.studentProfile,
       mentorProfile: user.mentorProfile,
@@ -256,7 +260,10 @@ export async function updateProfile(req: Request, res: Response, next: NextFunct
 
       const updated = await prisma.studentProfile.update({
         where: { userId },
-        data: { name },
+        data: {
+          name,
+          ...(parsed.data.avatar_url !== undefined ? { avatarUrl: parsed.data.avatar_url } : {}),
+        },
       });
 
       res.json(updated);
@@ -272,6 +279,7 @@ export async function updateProfile(req: Request, res: Response, next: NextFunct
       if (title !== undefined) dataToUpdate.title = title;
       if (bio !== undefined) dataToUpdate.bio = bio;
       if (hourlyRate !== undefined) dataToUpdate.hourlyRate = hourlyRate;
+      if (parsed.data.avatar_url !== undefined) dataToUpdate.avatarUrl = parsed.data.avatar_url;
       if (stackId !== undefined) {
         // Verify stack exists first
         const stack = await prisma.stack.findUnique({ where: { id: stackId } });

@@ -58,10 +58,13 @@ export default function SessionHistory({
         month: 'short',
         day: 'numeric',
         year: 'numeric',
+        timeZone: 'UTC',
       }),
       time: date.toLocaleTimeString(i18n.language === 'ar' ? 'ar-EG' : 'en-US', {
         hour: '2-digit',
         minute: '2-digit',
+        hour12: true,
+        timeZone: 'UTC',
       }),
     };
   };

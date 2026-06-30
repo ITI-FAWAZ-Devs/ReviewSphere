@@ -12,12 +12,17 @@ import {
   CheckCircle,
   Loader2,
   Video,
-  Plus
+  Plus,
+  Moon,
+  Sun
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { useTheme } from '@/components/ThemeProvider';
+import LanguageToggle from '@/components/LanguageToggle';
 import { useUserSessions, useUpdateSessionStatus } from '@/hooks/useSessions';
 import { toast } from '@/lib/toast';
 import apiClient from '@/lib/axios';
+import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
 import MentorAvatar from '@/components/dashboard/MentorAvatar';
 import { Button } from '@/components/ui/button';
 import AvailabilityDialog from '@/components/dashboard/AvailabilityDialog';
@@ -29,9 +34,12 @@ interface AvailabilityBlock {
 }
 
 export default function MentorDashboard() {
-  const { user, logout } = useAuth();
+  const { user, token, logout } = useAuth();
   const { t, i18n } = useTranslation();
   const location = useLocation();
+  const { theme, setTheme } = useTheme();
+
+  const toggleTheme = () => setTheme(theme === 'dark' ? 'light' : 'dark');
 
   const isSessionsPage = location.pathname === '/dashboard/mentor/sessions';
 
@@ -80,6 +88,11 @@ export default function MentorDashboard() {
       ...s,
       studentName: s.student?.name ?? 'Unknown Student',
       studentEmail: s.student?.user?.email ?? '',
+      studentAvatarUrl: s.student?.avatarUrl ?? undefined,
+      // Map student properties into mentor properties so UpcomingSessions can render them
+      mentorName: s.student?.name ?? 'Unknown Student',
+      mentorAvatar: s.student?.avatarUrl ?? undefined,
+      title: s.student?.user?.email ?? '',
       startTime: s.startsAt,
       duration: computeDuration(s.startsAt, s.endsAt),
     }));
@@ -164,12 +177,25 @@ export default function MentorDashboard() {
         month: 'short',
         day: 'numeric',
         year: 'numeric',
+        timeZone: 'UTC',
       }),
       time: date.toLocaleTimeString(i18n.language === 'ar' ? 'ar-EG' : 'en-US', {
         hour: '2-digit',
         minute: '2-digit',
+        hour12: true,
+        timeZone: 'UTC',
       }),
     };
+  };
+
+  /** Convert "HH:MM" availability string to "h:mm AM/PM" */
+  const formatSlotTime = (hhmm: string): string => {
+    const [hourStr, minuteStr] = hhmm.split(':');
+    const hour = parseInt(hourStr, 10);
+    const minute = parseInt(minuteStr, 10);
+    const period = hour >= 12 ? 'PM' : 'AM';
+    const h12 = hour % 12 === 0 ? 12 : hour % 12;
+    return `${h12}:${String(minute).padStart(2, '0')} ${period}`;
   };
 
   const getDayLabel = (day: number) => t(`profile.availability.days.${day}`);
@@ -214,7 +240,7 @@ export default function MentorDashboard() {
                   <Clock className="w-4 h-4 text-rs-accent" />
                   <div>
                     <p className="text-sm font-semibold text-foreground">{getDayLabel(slot.dayOfWeek)}</p>
-                    <p className="text-xs text-muted-foreground font-mono">{slot.startTime} - {slot.endTime}</p>
+                    <p className="text-xs text-muted-foreground font-mono">{formatSlotTime(slot.startTime)} - {formatSlotTime(slot.endTime)}</p>
                   </div>
                 </div>
               ))}
@@ -280,7 +306,7 @@ export default function MentorDashboard() {
                     <tr key={session.id} className="hover:bg-muted/40 transition-colors">
                       <td className="px-5 py-4">
                         <div className="flex items-center gap-3">
-                          <MentorAvatar name={session.studentName} size="sm" />
+                          <MentorAvatar name={session.studentName} avatarUrl={session.studentAvatarUrl} size="sm" />
                           <div>
                             <p className="font-medium text-foreground">{session.studentName}</p>
                             <p className="text-xs text-muted-foreground font-mono">{session.studentEmail}</p>
@@ -332,45 +358,7 @@ export default function MentorDashboard() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="flex h-screen">
-        {/* Sidebar */}
-        <aside className="hidden lg:flex w-64 flex-shrink-0 flex-col border-e border-border bg-card h-full min-h-[calc(100vh-3.5rem)]">
-          <div className="flex-1 py-6 px-4 space-y-7">
-            <div>
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest px-3 mb-3">
-                {t('dashboard.portal')}
-              </p>
-              <nav className="space-y-1">
-                {SIDEBAR_LINKS.map((link) => {
-                  const Icon = link.icon;
-                  const isActive = location.pathname === link.to;
-                  return (
-                    <Link
-                      key={link.to}
-                      to={link.to}
-                      className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-xl transition-colors ${
-                        isActive
-                          ? 'bg-rs-accent/15 text-rs-accent font-semibold'
-                          : 'text-muted-foreground hover:text-foreground hover:bg-muted'
-                      }`}
-                    >
-                      <Icon className="w-4 h-4" />
-                      {link.label}
-                    </Link>
-                  );
-                })}
-              </nav>
-            </div>
-          </div>
-          <div className="p-4 border-t border-border">
-            <button
-              onClick={logout}
-              className="flex w-full items-center gap-3 px-3 py-2 text-sm font-medium rounded-xl text-muted-foreground hover:text-rs-danger hover:bg-rs-danger/5 transition-colors"
-            >
-              <LogOut className="w-4 h-4" />
-              {t('dashboard.sidebar.logout')}
-            </button>
-          </div>
-        </aside>
+        <DashboardSidebar links={SIDEBAR_LINKS} />
 
         {/* Main Content */}
         <main className="flex-1 min-w-0 bg-background overflow-y-auto">
@@ -385,6 +373,11 @@ export default function MentorDashboard() {
               </p>
             </div>
             <div className="flex items-center gap-4">
+              <Button variant="ghost" size="icon" onClick={toggleTheme} aria-label="Toggle theme" className="h-9 w-9 rounded-full bg-card/50 backdrop-blur-md">
+                {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              </Button>
+              <LanguageToggle />
+
               <Link to="/profile/edit">
                 <Button variant="outline" size="sm" className="rounded-xl flex items-center gap-2">
                   <Settings className="w-4 h-4" /> Update Settings

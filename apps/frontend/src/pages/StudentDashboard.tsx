@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useTheme } from '@/components/ThemeProvider';
+import LanguageToggle from '@/components/LanguageToggle';
 import {
   AlertCircle,
   LayoutDashboard,
@@ -9,11 +11,15 @@ import {
   Settings,
   Video,
   Loader2,
-  Sparkles
+  Sparkles,
+  Moon,
+  Sun
 } from 'lucide-react';
 import { toast } from '@/lib/toast';
+import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/AuthContext';
 import { useUserSessions, useUpdateSessionStatus, useSubmitFeedback, useSessionMeetLink } from '@/hooks/useSessions';
+import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
 
 import DashboardStats from '@/components/dashboard/DashboardStats';
 import UpcomingSessions from '@/components/dashboard/UpcomingSessions';
@@ -60,6 +66,9 @@ export default function StudentDashboard() {
   const { user, logout } = useAuth();
   const { t } = useTranslation();
   const location = useLocation();
+  const { theme, setTheme } = useTheme();
+
+  const toggleTheme = () => setTheme(theme === 'dark' ? 'light' : 'dark');
 
   const isSessionsPage = location.pathname === '/dashboard/student/sessions';
 
@@ -70,6 +79,7 @@ export default function StudentDashboard() {
 
   const [feedback, setFeedback] = useState<Record<string, FeedbackForm>>({});
   const [historyFilter, setHistoryFilter] = useState<'all' | 'completed' | 'canceled'>('all');
+  const [upcomingDateFilter, setUpcomingDateFilter] = useState<string>('');
   const [expandedNotes, setExpandedNotes] = useState<string | null>(null);
 
   const submittingFeedback = useMemo(() => {
@@ -103,10 +113,17 @@ export default function StudentDashboard() {
   }, [apiSessions]);
 
   const upcomingSessions = useMemo(() => {
-    return sessions
-      .filter((s) => s.status === 'Scheduled')
-      .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
-  }, [sessions]);
+    let filtered = sessions.filter((s) => s.status === 'Scheduled');
+    
+    if (upcomingDateFilter) {
+      filtered = filtered.filter((s) => {
+        const sessionDate = new Date(s.startTime).toISOString().split('T')[0];
+        return sessionDate === upcomingDateFilter;
+      });
+    }
+
+    return filtered.sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
+  }, [sessions, upcomingDateFilter]);
 
   const pastSessions = useMemo(() => {
     return sessions
@@ -239,47 +256,7 @@ export default function StudentDashboard() {
     <div className="min-h-screen bg-background text-foreground">
       <div className="flex">
         {/* Sidebar */}
-        <aside className="hidden lg:flex w-64 flex-shrink-0 flex-col border-e border-border bg-card/60 backdrop-blur-3xl min-h-screen sticky top-0">
-          <div className="px-6 pt-8 pb-6">
-            <p className="text-xl font-extrabold text-foreground tracking-tight flex items-center gap-2">
-              {t('common.appName')}
-            </p>
-            <p className="text-xs font-semibold text-muted-foreground mt-1 uppercase tracking-widest">{t('dashboard.portal')}</p>
-          </div>
-
-          <nav className="flex-1 px-3 py-4 space-y-1">
-            {SIDEBAR_LINKS.map(({ to, label, icon: Icon }) => {
-              const active = location.pathname === to;
-              const baseClass =
-                'flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-semibold transition-all relative overflow-hidden group';
-              const activeClass =
-                'bg-rs-accent text-white shadow-md shadow-rs-accent/20';
-              const inactiveClass = 'text-muted-foreground hover:text-foreground hover:bg-muted/60';
-
-              return (
-                <Link
-                  key={label}
-                  to={to}
-                  className={`${baseClass} ${active ? activeClass : inactiveClass}`}
-                >
-                  <Icon className="w-4 h-4 relative z-10" />
-                  <span className="relative z-10">{label}</span>
-                </Link>
-              );
-            })}
-          </nav>
-
-          <div className="px-3 pb-6">
-            <button
-              type="button"
-              onClick={logout}
-              className="flex items-center gap-3 w-full px-4 py-3 rounded-2xl text-sm font-semibold text-muted-foreground hover:text-rs-danger hover:bg-rs-danger/10 transition-colors"
-            >
-              <LogOut className="w-4 h-4" />
-              {t('dashboard.sidebar.logout')}
-            </button>
-          </div>
-        </aside>
+        <DashboardSidebar links={SIDEBAR_LINKS} />
 
         {/* Main content */}
         <div className="flex-1 min-w-0">
@@ -296,11 +273,16 @@ export default function StudentDashboard() {
             </div>
 
             <div className="relative z-10 flex items-center gap-4 flex-shrink-0">
+              <Button variant="ghost" size="icon" onClick={toggleTheme} aria-label="Toggle theme" className="h-9 w-9 rounded-full bg-card/50 backdrop-blur-md">
+                {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              </Button>
+              <LanguageToggle />
+
               <Link
                 to="/profile/edit"
                 className="flex items-center gap-3 pl-2 pr-4 py-2 rounded-full border-2 border-border/60 bg-card/50 backdrop-blur-md hover:border-rs-accent/50 hover:bg-card transition-all shadow-sm group"
               >
-                <MentorAvatar name={user?.name ?? 'Student'} size="sm" />
+                <MentorAvatar name={user?.name ?? 'Student'} avatarUrl={user?.avatarUrl} size="sm" />
                 <span className="text-sm font-bold text-foreground group-hover:text-rs-accent transition-colors">
                   {user?.name ?? 'Student'}
                 </span>
@@ -323,6 +305,17 @@ export default function StudentDashboard() {
             <div className={isSessionsPage ? "space-y-8" : "grid grid-cols-1 xl:grid-cols-3 gap-8"}>
               {/* Upcoming sessions */}
               <div className={isSessionsPage ? "" : "xl:col-span-2"}>
+                {isSessionsPage && (
+                  <div className="flex items-center justify-between gap-4 flex-wrap mb-4">
+                    <h2 className="text-xl font-bold text-foreground">Filter Upcoming</h2>
+                    <input
+                      type="date"
+                      value={upcomingDateFilter}
+                      onChange={(e) => setUpcomingDateFilter(e.target.value)}
+                      className="text-sm font-semibold bg-card border-2 border-border rounded-xl px-4 py-2 text-foreground focus:outline-none focus:border-rs-accent shadow-sm"
+                    />
+                  </div>
+                )}
                 <UpcomingSessions
                   sessions={upcomingSessions}
                   onCancel={handleCancelSession}

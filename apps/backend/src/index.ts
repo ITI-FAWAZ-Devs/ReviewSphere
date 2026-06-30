@@ -18,7 +18,7 @@ app.use(helmet());
 app.use(passport.initialize());
 app.use(cors({ origin: process.env.CORS_ORIGIN ?? 'http://localhost:5173' }));
 app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
-app.use(express.json());
+app.use(express.json({ limit: '5mb' }));
 
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok' });
